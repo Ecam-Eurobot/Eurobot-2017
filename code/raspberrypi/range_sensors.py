@@ -11,9 +11,8 @@ class RangeSensor(I2C):
     def get_range(self, sensor):
         cmd = I2C.pack8(1, sensor)
         self.send(cmd)
-        r1 = self.receive()
-        r2 = self.receive()
-        return I2C.pack16(r1, r2)
+        r = self.receive(2)
+        return I2C.pack16(r[1], r[0])
 
     def get_ranges(self):
         cmd = I2C.pack8(2, 0)

@@ -19,11 +19,7 @@ class I2C:
         if num_bytes == 1:
             return self.bus.read_byte(self.adress)
         else:
-            data = []
-            for _ in range(num_bytes):
-                data.append(self.bus.read_byte(self.adress))
-
-            return data
+            return self.bus.read_i2c_block_data(self.adress, 0x00, num_bytes)
 
     def pack8(x, y):
         # Use  bitwise AND to retain only the first 4 bits
