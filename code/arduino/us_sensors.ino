@@ -2,10 +2,8 @@
 
 const byte SLAVE_ADDRESS = 0x04;
 const byte N_SENSORS = 2;
-const byte N_MEASURES = 5;
 
-int measures[N_SENSORS][N_MEASURES];
-byte measure_index = 0;
+int measures[N_SENSORS];
 unsigned long last_measure = 0;
 
 // I2C variables
@@ -27,7 +25,7 @@ void setup() {
     }
 
     // Setup echo pins
-    for(byte i = 8; i < 8+N_SENSORS; i++) {
+    for(byte i = 8; i < 8 + N_SENSORS; i++) {
         pinMode(i, INPUT);
     }
 }
@@ -35,16 +33,10 @@ void setup() {
 void loop() {
     if (millis() - last_measure > 100) {
         for(byte i = 0; i < N_SENSORS; i++) {
-            measures[i][measure_index] = measure(i + 2, 8 + i);
+            measures[i] = measure(i + 2, 8 + i);
         }
 
         last_measure = millis();
-
-        if (measure_index < N_MEASURES - 1) {
-            measure_index++;
-        } else {
-            measure_index = 0;
-        }
     }
 }
 
@@ -89,9 +81,7 @@ void receiveData(int byteCount){
 }
 
 void sendData(){
-    int avg_value = 0;
-    byte avg_split[2];
-
+    byte split[2];
 
     switch(command){
 
@@ -103,31 +93,23 @@ void sendData(){
                 Wire.write(0);
                 return;
             }
-            avg_value = avg(measures[sensor]);
-            avg_split[0] = avg_value & 0xFF;
-            avg_split[1] = avg_value >> 8;
-            Wire.write(avg_split, 2);
+
+            split[0] = measures[sensor] & 0xFF;
+            split[1] = measures[sensor] >> 8;
+            Wire.write(split, 2);
             break;
 
         // Return measurements of all sensors
         case 2:
             for(byte i = 0; i < N_SENSORS; i++) {
-                avg_value = avg(measures[sensor]);
-                avg_split[0] = avg_value & 0xFF;
-                avg_split[1] = avg_value >> 8;
-                Wire.write(avg_split, 2);
+                split[0] = measures[sensor] & 0xFF;
+                split[1] = measures[sensor] >> 8;
+                Wire.write(split, 2);
             }
             break;
 
-        // Enumerate all the sensors
         case 3:
-            for(byte i = 0; i < N_SENSORS; i++) {
-                Wire.write( i );
-            }
-            break;
-
-        case 4:
-            Wire.write( N_SENSORS );
+            Wire.write(N_SENSORS);
             break;
 
         default:
@@ -136,13 +118,4 @@ void sendData(){
     }
 
     command_processed = true;
-}
-
-int avg(int values[N_MEASURES]) {
-    int sum = 0;
-    for (byte i = 0; i < N_MEASURES; i++) {
-        sum += values[i];
-    }
-
-    return sum / N_MEASURES;
 }

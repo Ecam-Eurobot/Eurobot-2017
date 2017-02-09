@@ -1,7 +1,7 @@
 from range_sensors import RangeSensor
-
 import time
 
+# Testing code to see if it works
 sensors = RangeSensor(4)
 time.sleep(0.1)
 
