@@ -4,11 +4,11 @@ from i2c import I2C
 class RangeSensor(I2C):
     """
     This class is an abstraction around the I2C communication with
-    the range-sensor mdoule.
+    the range-sensor module.
 
     Details of the "protocol" used:
 
-    The Raspberry Pi sens a byte to the module containing a command
+    The Raspberry Pi sends a byte to the module containing a command
     and eventually a sensor number. Both informations are coded on 4 bits
     totalling 8 bits together. The null byte, 0x00, is used to indicate errors.
     This means that we have 15 possible commands and 15 possible sensors.
