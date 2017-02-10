@@ -1,4 +1,11 @@
 from i2c import I2C
+from enum import IntEnum
+
+
+class Command(IntEnum):
+    MeasureOne = 1
+    MeasureAll = 2
+    Count = 3
 
 
 class RangeSensor(I2C):
@@ -31,11 +38,6 @@ class RangeSensor(I2C):
        The response is only one byte as there are only 15 possible sensors.
 
     """
-
-    class Command(Enum):
-        MeasureOne = 1,
-        MeasureAll = 2,
-        Count = 3,
 
     def __init__(self, address):
         """Constructor takes the adress of the I2C module"""

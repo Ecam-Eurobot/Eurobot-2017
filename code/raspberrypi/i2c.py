@@ -35,7 +35,7 @@ class I2C:
             return data
 
     def pack8(high, low):
-        """Takes two 4 bit variables and packs them together into 8 bits""""
+        """Takes two 4 bit variables and packs them together into 8 bits"""
         # Use  bitwise AND to retain only the first 4 bits
         # of high and low, shift the four bits from high to the left
         # and do a bitwise OR with the four bits of low
