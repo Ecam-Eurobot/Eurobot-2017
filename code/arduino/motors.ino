@@ -32,11 +32,11 @@ const float WHEEL_PERIMETER = WHEEL_RADIUS * 2 * PI;
 const float IMP_PER_REVOLUTION = 409.6;
 const float IMP_DISTANCE = WHEEL_PERIMETER / IMP_PER_REVOLUTION;
 
-const int PWM_MOTOR_LEFT = 6;
-const int PWM_MOTOR_RIGHT = 7;
+const int PWM_MOTOR_LEFT = 10;
+const int PWM_MOTOR_RIGHT = 11;
 
-const int DIR_MOTOR_LEFT = 8;
-const int DIR_MOTOR_RIGHT = 9;
+const int DIR_MOTOR_LEFT = 52;
+const int DIR_MOTOR_RIGHT = 53;
 
 long counter_left = 0;
 long counter_right = 0;
@@ -61,21 +61,19 @@ void setup() {
 
     pinMode(DIR_MOTOR_LEFT, OUTPUT);
     pinMode(DIR_MOTOR_RIGHT, OUTPUT);
+
+    // TODO: check which one we need.
+    TCCR1B = TCCR1B & B11111000 | B00000001;
+    TCCR2B = TCCR2B & B11111000 | B00000001;
+    TCCR3B = TCCR3B & B11111000 | B00000001;
 }
 
 void loop() {
-    digitalWrite(DIR_MOTOR_LEFT, OUTPUT);
-    digitalWrite(DIR_MOTOR_RIGHT, OUTPUT);
+    digitalWrite(DIR_MOTOR_LEFT, LOW);
+    digitalWrite(DIR_MOTOR_RIGHT, LOW);
 
-    analogWrite(PWM_MOTOR_LEFT, 1);
-    analogWrite(PWM_MOTOR_RIGHT, 1);
-
-    Serial.print("Left distance: ");
-    Serial.println(convert_imp_to_cm(counter_left));
-    Serial.print("Right distance: ");
-    Serial.println(convert_imp_to_cm(counter_right));
-
-    delay(1000);
+    analogWrite(PWM_MOTOR_LEFT, 50);
+    analogWrite(PWM_MOTOR_RIGHT, 50);
 }
 
 // Receive data from I2C communication
