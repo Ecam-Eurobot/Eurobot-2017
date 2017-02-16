@@ -132,11 +132,15 @@ void sendData(){
           break;
 
       case 7:
+      // Required to define a new variable in a switch-case.
+      // http://stackoverflow.com/a/2392693
+      {
           // Distance
-          byte buf[] = { convert_imp_to_cm(counter_left),
-            convert_imp_to_cm(counter_right) };
+          byte buf[2]= { (byte) convert_imp_to_cm(counter_left),
+                (byte) convert_imp_to_cm(counter_right) };
           Wire.write(buf, 2);
           break;
+      }
 
       case 8:
           // Is Done
