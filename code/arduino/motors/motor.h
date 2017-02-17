@@ -3,15 +3,14 @@
 
 #include <Arduino.h>
 
-class Motor
-{
+class Motor {
     public:
         Motor(int pwm_pin, int dir_pin);
         void setup();
         void stop();
         void move_forward(int speed);
         void move_backward(int speed);
-        void encoder_pulse(int pulse);
+        void add_encoder_pulse(int pulse);
         long get_encoder_impulsion();
         long get_encoder_distance();
 
@@ -28,6 +27,6 @@ class Motor
         int pwm_pin;
         int dir_pin;
         long encoder_pulse;
-}
+};
 
 #endif

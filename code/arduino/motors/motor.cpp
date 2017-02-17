@@ -24,7 +24,7 @@ void Motor::move_backward(int speed) {
     analogWrite(pwm_pin, speed);
 }
 
-void Motor::encoder_pulse(int pulse) {
+void Motor::add_encoder_pulse(int pulse) {
     encoder_pulse += pulse;
 }
 
@@ -32,6 +32,6 @@ long Motor::get_encoder_impulsion() {
     return encoder_pulse;
 }
 
-int Motor::get_encoder_distance() {
+long Motor::get_encoder_distance() {
     return encoder_pulse * IMP_DISTANCE;
 }

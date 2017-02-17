@@ -45,6 +45,9 @@ void setup() {
     attachInterrupt(int_left, encoder_pulse_left, CHANGE);
     attachInterrupt(int_right, encoder_pulse_right, CHANGE);
 
+    motor_left.setup();
+    motor_right.setup();
+
     // TODO: check which one we need.
     // Increase the PWM clock speed.
     TCCR1B = TCCR1B & B11111000 | B00000001;
@@ -118,8 +121,8 @@ void sendData(){
       // http://stackoverflow.com/a/2392693
       {
           // Distance
-          byte buf[2]= { (byte) convert_imp_to_cm(counter_left),
-                (byte) convert_imp_to_cm(counter_right) };
+          byte buf[2]= { (byte) motor_left.get_encoder_distance(),
+                (byte) motor_right.get_encoder_distance() };
           Wire.write(buf, 2);
           break;
       }
@@ -135,20 +138,10 @@ void sendData(){
 
 void encoder_pulse_left() {
     int direction = digitalRead(DIRECTION_LEFT_PIN);
-    motor_left.encoder_pulse((direction == 1) ? 1 : -1);
+    motor_left.add_encoder_pulse((direction == 1) ? 1 : -1);
 }
 
 void encoder_pulse_right() {
     int direction = digitalRead(DIRECTION_RIGHT_PIN);
-    motor_right.encoder_pulse((direction == 0) ? 1 : -1);
-}
-
-// Helper to convert impulsion to centimeter and vise-versa.
-
-float convert_imp_to_cm(long imp) {
-    return imp * IMP_DISTANCE;
-}
-
-float convert_cm_to_imp(long cm) {
-    return cm / IMP_DISTANCE;
+    motor_right.add_encoder_pulse((direction == 0) ? 1 : -1);
 }
