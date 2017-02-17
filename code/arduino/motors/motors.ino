@@ -1,5 +1,6 @@
 #include <Wire.h>
 #include "motor.h"
+#include "regulation.h"
 
 // This code is made for an Arduino Mega and test if
 // the wheel encoder are working properly.
@@ -138,10 +139,10 @@ void sendData(){
 
 void encoder_pulse_left() {
     int direction = digitalRead(DIRECTION_LEFT_PIN);
-    motor_left.add_encoder_pulse((direction == 1) ? 1 : -1);
+    motor_left.count_encoder_pulse((direction == 1) ? 1 : -1);
 }
 
 void encoder_pulse_right() {
     int direction = digitalRead(DIRECTION_RIGHT_PIN);
-    motor_right.add_encoder_pulse((direction == 0) ? 1 : -1);
+    motor_right.count_encoder_pulse((direction == 0) ? 1 : -1);
 }

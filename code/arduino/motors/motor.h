@@ -10,8 +10,10 @@ class Motor {
         void stop();
         void move_forward(int speed);
         void move_backward(int speed);
-        void add_encoder_pulse(int pulse);
-        long get_encoder_impulsion();
+        int get_speed();
+        void count_encoder_pulse(int pulse);
+        void reset_encoder_counter();
+        long get_encoder_counter();
         long get_encoder_distance();
 
     private:
@@ -26,7 +28,8 @@ class Motor {
 
         int pwm_pin;
         int dir_pin;
-        long encoder_pulse;
+        long encoder_counter;
+        int speed;
 };
 
 #endif
