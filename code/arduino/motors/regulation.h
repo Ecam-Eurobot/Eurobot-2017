@@ -7,11 +7,12 @@ class Regulation {
     public:
         Regulation(Motor *left, Motor *right);
         void tune();
-        void set_order(int order);
+        void set_setpoint(int setpoint);
         void set_max_speed(int maxspeed);
 
     protected:
-        int order;
+        int setpoint;
+
         virtual float get_rotation_error();
         virtual float get_lead_error();
 
@@ -23,6 +24,7 @@ class Regulation {
         const int INTEGRAL_SATURATION = 60;
         const int PROGRESSIVE_COMMAND = 3;
         const int COMMAND_DELTA = 4;
+        const int MAX_SPEED_BOOST = 20;
 
         Motor *motor_left, *motor_right;
         int maxspeed = 50;
@@ -34,7 +36,7 @@ class Regulation {
         float get_lead_regulation(float error);
         float get_rotation_regulation(float error);
         float saturate_integral_regulation(float value);
-        float get_command_motor(Motor *motor, float command);
+        float set_command_limit(Motor *motor, float command);
         void send_command(float cmd_left, float cmd_right,
                 bool forward_left, bool forward_right);
 };

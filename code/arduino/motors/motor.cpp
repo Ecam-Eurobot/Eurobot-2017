@@ -1,9 +1,7 @@
 #include "motor.h"
 
 Motor::Motor(int pwm_pin, int dir_pin):
-    pwm_pin(pwm_pin), dir_pin(dir_pin), encoder_counter(0), speed(0) {
-
-}
+    pwm_pin(pwm_pin), dir_pin(dir_pin), encoder_counter(0), speed(0) { }
 
 void Motor::setup() {
     pinMode(pwm_pin, OUTPUT);
