@@ -1,4 +1,5 @@
 #include <Wire.h>
+#include "motor.h"
 
 // This code is made for an Arduino Mega and test if
 // the wheel encoder are working properly.
@@ -9,7 +10,6 @@ const byte SLAVE_ADDRESS = 0x05;
 // I2C variables
 byte command = 0;
 byte data = 0;
-
 
 byte movement_command = 0;
 byte movement_data = 0;
@@ -22,25 +22,14 @@ const int IMP_ENCODER_RIGHT_PIN = 3;
 const int DIRECTION_LEFT_PIN = 4;
 const int DIRECTION_RIGHT_PIN = 5;
 
-// TODO: verify this value!
-const int WHEEL_RADIUS = 4.02;
-const float WHEEL_PERIMETER = WHEEL_RADIUS * 2 * PI;
-// The encoder has a 1024 pulses/revolution.
-// The DEO nano reduces per 5 the impulsion and we take the pulse
-// when high and low.
-// The final calculus is 1024*2/5 = 409.6
-const float IMP_PER_REVOLUTION = 409.6;
-const float IMP_DISTANCE = WHEEL_PERIMETER / IMP_PER_REVOLUTION;
-
+// Motor pins.
 const int PWM_MOTOR_LEFT = 10;
 const int PWM_MOTOR_RIGHT = 11;
-
 const int DIR_MOTOR_LEFT = 52;
 const int DIR_MOTOR_RIGHT = 53;
 
-long counter_left = 0;
-long counter_right = 0;
-
+Motor motor_left(PWM_MOTOR_LEFT, DIR_MOTOR_LEFT);
+Motor motor_right(PWM_MOTOR_RIGHT, DIR_MOTOR_RIGHT);
 
 void setup() {
     Serial.begin(9600);
@@ -56,24 +45,16 @@ void setup() {
     attachInterrupt(int_left, encoder_pulse_left, CHANGE);
     attachInterrupt(int_right, encoder_pulse_right, CHANGE);
 
-    pinMode(PWM_MOTOR_LEFT, OUTPUT);
-    pinMode(PWM_MOTOR_RIGHT, OUTPUT);
-
-    pinMode(DIR_MOTOR_LEFT, OUTPUT);
-    pinMode(DIR_MOTOR_RIGHT, OUTPUT);
-
     // TODO: check which one we need.
+    // Increase the PWM clock speed.
     TCCR1B = TCCR1B & B11111000 | B00000001;
     TCCR2B = TCCR2B & B11111000 | B00000001;
     TCCR3B = TCCR3B & B11111000 | B00000001;
 }
 
 void loop() {
-    digitalWrite(DIR_MOTOR_LEFT, LOW);
-    digitalWrite(DIR_MOTOR_RIGHT, LOW);
-
-    analogWrite(PWM_MOTOR_LEFT, 50);
-    analogWrite(PWM_MOTOR_RIGHT, 50);
+    motor_left.move_forward(40);
+    motor_right.move_forward(40);
 }
 
 // Receive data from I2C communication
@@ -123,7 +104,8 @@ void sendData(){
 
       case 5:
           // Stop
-          stop_motors();
+          motor_left.stop();
+          motor_right.stop();
           break;
 
       case 6:
@@ -149,24 +131,19 @@ void sendData(){
     }
 }
 
-void stop_motors() {
-    analogWrite(PWM_MOTOR_LEFT, 0);
-    analogWrite(PWM_MOTOR_RIGHT, 0);
-}
-
 // Interrupt callbacks
 
 void encoder_pulse_left() {
     int direction = digitalRead(DIRECTION_LEFT_PIN);
-    counter_left += (direction == 1) ? 1 : -1;
+    motor_left.encoder_pulse((direction == 1) ? 1 : -1);
 }
 
 void encoder_pulse_right() {
     int direction = digitalRead(DIRECTION_RIGHT_PIN);
-    counter_right += (direction == 0) ? 1 : -1;
+    motor_right.encoder_pulse((direction == 0) ? 1 : -1);
 }
 
-// Helper to convert impulsion to centimèter and vise-versa.
+// Helper to convert impulsion to centimeter and vise-versa.
 
 float convert_imp_to_cm(long imp) {
     return imp * IMP_DISTANCE;
