@@ -13,21 +13,26 @@ class Motor {
         int get_speed();
         void count_encoder_pulse(int pulse);
         void reset_encoder_counter();
-        long get_encoder_counter();
-        long get_encoder_distance();
+        long get_encoder_counter() const;
+        long get_encoder_distance() const;
+
+        static long convert_cm_to_imp(int cm);
+        static int convert_imp_to_cm(long imp);
+        static long convert_angle_to_imp(int angle);
 
     private:
-        const int WHEEL_RADIUS = 4.02;
-        const float WHEEL_PERIMETER = WHEEL_RADIUS * 2 * PI;
+        static const int WHEEL_RADIUS = 4.02;
+        static const float WHEEL_PERIMETER = WHEEL_RADIUS * 2 * PI;
         // The encoder has a 1024 pulses/revolution.
         // The DEO nano reduces per 5 the impulsion and we take the pulse
         // when high and low.
         // The final calculus is 1024*2/5 = 409.6
-        const float IMP_PER_REVOLUTION = 409.6;
-        const float IMP_DISTANCE = WHEEL_PERIMETER / IMP_PER_REVOLUTION;
+        static const float IMP_PER_REVOLUTION = 409.6;
+        static const float IMP_DISTANCE = WHEEL_PERIMETER / IMP_PER_REVOLUTION;
+        // TODO: find where this value come from...
+        static const float ANGLE_CORRECTION = 107.5 / 360;
 
-        int pwm_pin;
-        int dir_pin;
+        int pwm_pin, dir_pin;
         long encoder_counter;
         int speed;
 };

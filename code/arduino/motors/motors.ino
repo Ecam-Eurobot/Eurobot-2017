@@ -2,9 +2,6 @@
 #include "motor.h"
 #include "regulation.h"
 
-// This code is made for an Arduino Mega and test if
-// the wheel encoder are working properly.
-
 // I2C address
 const byte SLAVE_ADDRESS = 0x05;
 
@@ -12,10 +9,19 @@ const byte SLAVE_ADDRESS = 0x05;
 byte command = 0;
 byte data = 0;
 
-byte movement_command = 0;
-byte movement_data = 0;
-byte speed_order = 0;
-bool is_movement_command_done = true;
+// I2C commands
+enum Commands {
+    Forward = 1,
+    Backward,
+    TurnLeft,
+    TurnRight,
+    SetSpeed,
+    Stop,
+    GetDistanceDone,
+    IsDone,
+    IsStopped,
+    Resume
+};
 
 // Encoder wheel pins
 const int IMP_ENCODER_LEFT_PIN = 2;
@@ -29,15 +35,18 @@ const int PWM_MOTOR_RIGHT = 11;
 const int DIR_MOTOR_LEFT = 52;
 const int DIR_MOTOR_RIGHT = 53;
 
+
 Motor motor_left(PWM_MOTOR_LEFT, DIR_MOTOR_LEFT);
 Motor motor_right(PWM_MOTOR_RIGHT, DIR_MOTOR_RIGHT);
+
+Regulation *regulation = 0;
 
 void setup() {
     Serial.begin(9600);
 
     Wire.begin(SLAVE_ADDRESS);
-    Wire.onReceive(receiveData);
-    Wire.onRequest(sendData);
+    Wire.onReceive(receive_i2c_data);
+    Wire.onRequest(send_i2c_data);
 
     // Generate interrupt number from pins.
     int int_left = digitalPinToInterrupt(IMP_ENCODER_LEFT_PIN);
@@ -57,81 +66,107 @@ void setup() {
 }
 
 void loop() {
-    motor_left.move_forward(40);
-    motor_right.move_forward(40);
+    if (regulation) {
+        regulation->tune();
+    }
+    delay(25);
 }
 
 // Receive data from I2C communication
-void receiveData(int byteCount){
+void receive_i2c_data(int byteCount) {
+    bool command_received = false;
+
     while (Wire.available()) {
         byte dataReceived = Wire.read();
-        if (dataReceived == 0) { continue; }
+        if (dataReceived == 0) continue;
 
-        if (command == 0) {
+        if (! command_received) {
             command = dataReceived;
-        }
-        else {
+            command_received = true;
+
+            // Some commands don't need data.
+            // TODO: find if this one is required.
+            // Could be cool if we don't needed... Feels like a big hack
+            // to me.
+            if (command > 5) {
+                break;
+            }
+        } else {
             data = dataReceived;
         }
     }
+    execute_action();
 }
 
-void sendData(){
+void execute_action() {
+    // Cleanup regulation object and initialize a new one.
+    switch(command) {
+        case Forward:
+        case Backward:
+            delete regulation;
+            regulation = &LeadRegulation(&motor_left, &motor_right);
+            break;
+
+        case TurnLeft:
+        case TurnRight:
+            delete regulation;
+            regulation = &RotationRegulation(&motor_left, &motor_right);
+            break;
+    }
+    // Execute the command.
+    switch(command) {
+        case Forward:
+            regulation->set_setpoint(Motor::convert_cm_to_imp(data));
+            break;
+
+        case Backward:
+            regulation->set_setpoint(-Motor::convert_cm_to_imp(data));
+            break;
+
+        case TurnRight:
+            regulation->set_setpoint(Motor::convert_angle_to_imp(data));
+            break;
+
+        case TurnLeft:
+            regulation->set_setpoint(- Motor::convert_angle_to_imp(data));
+            break;
+
+        case SetSpeed:
+            regulation->set_max_speed(data);
+            break;
+
+        case Stop:
+            regulation->stop();
+            break;
+
+        case Resume:
+            regulation->resume();
+            break;
+    }
+}
+
+void send_i2c_data() {
     switch (command) {
-      case 1:
-          // Forward
-          movement_command = command;
-          movement_data = data;
-          is_movement_command_done = false;
-          break;
-
-      case 2:
-          // Backward
-          movement_command = command;
-          movement_data = data;
-          is_movement_command_done = false;
-          break;
-
-      case 3:
-          // Turn left
-          movement_command = command;
-          movement_data = data;
-          is_movement_command_done = false;
-          break;
-
-      case 4:
-          // Turn Rigth
-          movement_command = command;
-          movement_data = data;
-          is_movement_command_done = false;
-          break;
-
-      case 5:
-          // Stop
-          motor_left.stop();
-          motor_right.stop();
-          break;
-
-      case 6:
-          // Set speed
-          speed_order = data;
-          break;
-
-      case 7:
-      // Required to define a new variable in a switch-case.
-      // http://stackoverflow.com/a/2392693
-      {
-          // Distance
-          byte buf[2]= { (byte) motor_left.get_encoder_distance(),
+        case 7:
+        // Required to define a new variable in a switch-case.
+        // http://stackoverflow.com/a/2392693
+        {
+            // Distance
+            byte buf[2]= { (byte) motor_left.get_encoder_distance(),
                 (byte) motor_right.get_encoder_distance() };
-          Wire.write(buf, 2);
-          break;
-      }
+            Wire.write(buf, 2);
+            break;
+        }
 
-      case 8:
-          // Is Done
-          Wire.write(is_movement_command_done ? 1 : 0);
-          break;
+        case 8:
+            // Is Done
+            Wire.write(regulation->is_finished());
+            break;
+
+        case 9:
+            // Is stopped
+            Wire.write(regulation->is_stopped());
+            break;
     }
 }
 

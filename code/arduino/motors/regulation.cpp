@@ -2,15 +2,33 @@
 
 Regulation::Regulation(Motor *left, Motor *right):
         motor_left(left), motor_right(right) {
-    reset_regulation();
+    reset();
 }
 
+// Add a new setpoint that will be executed by the regulation process.
+// The setpoint is in impulsion. We can have 2 differents kind of setpoints
+// defined by which child class is used:
+//      - A lead
+//      - A rotation
+void Regulation::set_setpoint(int setpoint) {
+    reset();
+    finished = false;
+    stopped = false;
+    this->setpoint = setpoint;
+
+    // Begin the regulation.
+    tune();
+}
 
 // Tune the regulation according to the wheel encoder value.
 void Regulation::tune() {
+    if (stopped) return;
+
     // Calculate the error coming from the wheel encoder.
     float lead_error = get_lead_error();
     float rot_error = get_rotation_error();
+
+    if (is_finished(lead_error, rot_error)) return;
 
     // Update the sums of errors used for the integral of the PID.
     update_sum_errors(lead_error, rot_error);
@@ -25,27 +43,36 @@ void Regulation::tune() {
     float cmd_right = set_command_limit(motor_right, lead_regul - rot_regul);
 
     // Actually send command to the motors (with speed limiting).
-    send_command(cmd_left, cmd_right, cmd_left > 0, cmd_right > 0);
-}
-
-// Add a new setpoint that will be executed by the regulation process.
-// The setpoint is in impulsion. We can have 2 differents kind of setpoints
-// defined by which child class is used:
-//      - A lead
-//      - A rotation
-void Regulation::set_setpoint(int setpoint) {
-    reset_regulation();
-    finished = false;
-    this->setpoint = setpoint;
-    tune();
+    send_command(cmd_left, cmd_right);
 }
 
 void Regulation::set_max_speed(int maxspeed) {
     this->maxspeed = maxspeed;
 }
 
-// Reset all the parameters needed for a regulation.
-void Regulation::reset_regulation() {
+void Regulation::resume() {
+    stopped = false;
+}
+
+void Regulation::stop() {
+    motor_left->stop();
+    motor_right->stop();
+
+    stopped = true;
+}
+
+bool Regulation::is_stopped() const {
+    return stopped;
+}
+
+bool Regulation::is_finished() const {
+    return finished;
+}
+
+// Reset all the parameters needed for a regulation and stop the motors.
+void Regulation::reset() {
+    stop();
+
     sum_errors_lead = 0;
     sum_errors_rot = 0;
     setpoint = 0;
@@ -55,12 +82,30 @@ void Regulation::reset_regulation() {
     motor_right->reset_encoder_counter();
 }
 
+bool Regulation::is_finished(float lead_err, float rot_err) {
+    if (finished) return true;
+
+    if (abs(lead_err) <= REGULATION_PRECISION &&
+            abs(rot_err) <= REGULATION_PRECISION) {
+        finished = true;
+        stop();
+    }
+    return finished;
+}
+
 // Increase the sum of errors with the current error.
 // The sum of errors will be used for the integral of the PID.
+// We don't modify the sum of errors if the error is small
+// because it means we are nearly to the setpoint.
+// Because the integral parts of PID can give a big overshoot,
+// we limit the overshoot when we are near the setpoint.
 void Regulation::update_sum_errors(float lead, float rot) {
-    // TODO: check if we need to update them everytimes...
-    sum_errors_lead += lead;
-    sum_errors_rot += rot;
+    if (lead < SUM_ERRORS_LIMIT) {
+        sum_errors_lead += lead;
+    }
+    if (rot < SUM_ERRORS_LIMIT) {
+        sum_errors_rot += rot;
+    }
 }
 
 // Calculate the lead and the rotation of PID output with the specifics Kp and Ki.
@@ -97,9 +142,13 @@ float Regulation::set_command_limit(Motor *motor, float command) {
 }
 
 // Send the speed control to the motors.
-void Regulation::send_command(float cmd_left, float cmd_right,
-        bool forward_left, bool forward_right) {
+void Regulation::send_command(float cmd_left, float cmd_right) {
     float maxspeed_right = maxspeed, maxspeed_left = maxspeed;
+
+    bool forward_left = cmd_left > 0;
+    bool forward_right = cmd_right > 0;
+    cmd_left = abs(cmd_left);
+    cmd_right = abs(cmd_right);
 
     // If a motor is too behind, we can increase the max speed to
     // reach the stability faster.
@@ -139,9 +188,13 @@ float Regulation::get_rotation_error() {
     return (motor_left->get_encoder_counter() - motor_right->get_encoder_counter()) / 2;
 }
 
+LeadRegulation::LeadRegulation(Motor *left, Motor *right): Regulation(left, right) { }
+
 float LeadRegulation::get_lead_error() {
     return setpoint + Regulation::get_lead_error();
 }
+
+RotationRegulation::RotationRegulation(Motor *left, Motor *right): Regulation(left, right) { }
 
 float RotationRegulation::get_rotation_error() {
     return setpoint - Regulation::get_rotation_error();
