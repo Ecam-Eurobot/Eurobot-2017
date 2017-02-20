@@ -7,10 +7,12 @@ class Command(IntEnum):
     Backward = 2
     TurnLeft = 3
     TurnRight = 4
-    Stop = 5
-    SetSpeed = 6
-    DistanceTravelled = 7
+    SetSpeed = 5
+    Stop = 6
+    GetDistanceDone = 7
     IsDone = 8
+    IsStopped = 9
+    Resume = 10
 
 
 class Motors(I2C):
@@ -29,11 +31,11 @@ class Motors(I2C):
     def turn_right(self, angle):
         self.send([Command.TurnRight, angle])
 
-    def stop(self):
-        self.send(Command.Stop)
-
     def set_speed(self, speed):
         self.send([Command.SetSpeed, speed])
+
+    def stop(self):
+        self.send(Command.Stop)
 
     def distance_travelled(self):
         self.send(Command.DistanceTravelled)
@@ -46,3 +48,10 @@ class Motors(I2C):
     def is_done(self):
         self.send(Command.IsDone)
         return self.receive()
+
+    def is_stopped(self):
+        self.send(Command.IsStopped)
+        return self.receive()
+
+    def resume(self):
+        self.send(Command.Resume)

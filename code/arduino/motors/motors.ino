@@ -69,7 +69,7 @@ void loop() {
     if (regulation) {
         regulation->tune();
     }
-    delay(25);
+    delay(10);
 }
 
 // Receive data from I2C communication
@@ -104,13 +104,13 @@ void execute_action() {
         case Forward:
         case Backward:
             delete regulation;
-            regulation = &LeadRegulation(&motor_left, &motor_right);
+            regulation = new LeadRegulation(&motor_left, &motor_right);
             break;
 
         case TurnLeft:
         case TurnRight:
             delete regulation;
-            regulation = &RotationRegulation(&motor_left, &motor_right);
+            regulation = new RotationRegulation(&motor_left, &motor_right);
             break;
     }
     // Execute the command.
@@ -128,7 +128,7 @@ void execute_action() {
             break;
 
         case TurnLeft:
-            regulation->set_setpoint(- Motor::convert_angle_to_imp(data));
+            regulation->set_setpoint(-Motor::convert_angle_to_imp(data));
             break;
 
         case SetSpeed:
@@ -147,30 +147,27 @@ void execute_action() {
 
 void send_i2c_data() {
     switch (command) {
-        case 7:
+        case GetDistanceDone:
         // Required to define a new variable in a switch-case.
         // http://stackoverflow.com/a/2392693
         {
-            // Distance
             byte buf[2]= { (byte) motor_left.get_encoder_distance(),
                 (byte) motor_right.get_encoder_distance() };
             Wire.write(buf, 2);
             break;
         }
 
-        case 8:
+        case IsDone:
             // Is Done
             Wire.write(regulation->is_finished());
             break;
 
-        case 9:
+        case IsStopped:
             // Is stopped
             Wire.write(regulation->is_stopped());
             break;
     }
 }
-
-// Interrupt callbacks
 
 void encoder_pulse_left() {
     int direction = digitalRead(DIRECTION_LEFT_PIN);

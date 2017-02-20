@@ -22,7 +22,7 @@ void Regulation::set_setpoint(int setpoint) {
 
 // Tune the regulation according to the wheel encoder value.
 void Regulation::tune() {
-    if (stopped) return;
+    if (stopped || finished) return;
 
     // Calculate the error coming from the wheel encoder.
     float lead_error = get_lead_error();
@@ -191,7 +191,7 @@ float Regulation::get_rotation_error() {
 LeadRegulation::LeadRegulation(Motor *left, Motor *right): Regulation(left, right) { }
 
 float LeadRegulation::get_lead_error() {
-    return setpoint + Regulation::get_lead_error();
+    return setpoint - Regulation::get_lead_error();
 }
 
 RotationRegulation::RotationRegulation(Motor *left, Motor *right): Regulation(left, right) { }
