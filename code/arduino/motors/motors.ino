@@ -2,12 +2,19 @@
 #include "motor.h"
 #include "regulation.h"
 
+/*
+ * This code has been created for an Arduino Mega.
+ * The left and right are defined from the back of
+ * the robot.
+ */
+
 // I2C address
 const byte SLAVE_ADDRESS = 0x05;
 
 // I2C variables
 byte command = 0;
-byte data = 0;
+int data = -1;
+bool command_received = false;
 
 // I2C commands
 enum Commands {
@@ -24,8 +31,8 @@ enum Commands {
 };
 
 // Encoder wheel pins
-const int IMP_ENCODER_LEFT_PIN = 2;
-const int IMP_ENCODER_RIGHT_PIN = 3;
+const int IMP_ENCODER_LEFT_PIN = 3;
+const int IMP_ENCODER_RIGHT_PIN = 2;
 const int DIRECTION_LEFT_PIN = 4;
 const int DIRECTION_RIGHT_PIN = 5;
 
@@ -41,6 +48,8 @@ Motor motor_right(PWM_MOTOR_RIGHT, DIR_MOTOR_RIGHT);
 
 Regulation *regulation = 0;
 
+int motor_speed = 0;
+
 void setup() {
     Serial.begin(9600);
 
@@ -49,21 +58,19 @@ void setup() {
     Wire.onRequest(send_i2c_data);
 
     // Generate interrupt number from pins.
-    int int_left = digitalPinToInterrupt(IMP_ENCODER_LEFT_PIN);
     int int_right = digitalPinToInterrupt(IMP_ENCODER_RIGHT_PIN);
+    int int_left = digitalPinToInterrupt(IMP_ENCODER_LEFT_PIN);
 
     attachInterrupt(int_left, encoder_pulse_left, CHANGE);
     attachInterrupt(int_right, encoder_pulse_right, CHANGE);
-
     motor_left.setup();
     motor_right.setup();
 
-    // TODO: check which one we need.
     // Increase the PWM clock speed.
     TCCR1B = TCCR1B & B11111000 | B00000001;
     TCCR2B = TCCR2B & B11111000 | B00000001;
-    TCCR3B = TCCR3B & B11111000 | B00000001;
 }
+
 
 void loop() {
     if (regulation) {
@@ -74,45 +81,46 @@ void loop() {
 
 // Receive data from I2C communication
 void receive_i2c_data(int byteCount) {
-    bool command_received = false;
-
     while (Wire.available()) {
+
         byte dataReceived = Wire.read();
         if (dataReceived == 0) continue;
 
         if (! command_received) {
             command = dataReceived;
             command_received = true;
-
-            // Some commands don't need data.
-            // TODO: find if this one is required.
-            // Could be cool if we don't needed... Feels like a big hack
-            // to me.
-            if (command > 5) {
-                break;
-            }
         } else {
             data = dataReceived;
         }
     }
-    execute_action();
+    if ((data != -1) || (command > 4)) {
+        execute_action();
+    }
 }
 
 void execute_action() {
-    // Cleanup regulation object and initialize a new one.
+    // Cleanup regulation object and initialize a new one if we
+    // order a new regulation.
     switch(command) {
         case Forward:
         case Backward:
             delete regulation;
             regulation = new LeadRegulation(&motor_left, &motor_right);
+            if (motor_speed) {
+                regulation->set_max_speed(motor_speed);
+            }
             break;
 
         case TurnLeft:
         case TurnRight:
             delete regulation;
             regulation = new RotationRegulation(&motor_left, &motor_right);
+            if (motor_speed) {
+                regulation->set_max_speed(motor_speed);
+            }
             break;
     }
+
     // Execute the command.
     switch(command) {
         case Forward:
@@ -133,6 +141,7 @@ void execute_action() {
 
         case SetSpeed:
             regulation->set_max_speed(data);
+            motor_speed = data;
             break;
 
         case Stop:
@@ -143,6 +152,10 @@ void execute_action() {
             regulation->resume();
             break;
     }
+
+    // Reset I2C data.
+    data = -1;
+    command_received = false;
 }
 
 void send_i2c_data() {
@@ -169,12 +182,16 @@ void send_i2c_data() {
     }
 }
 
-void encoder_pulse_left() {
-    int direction = digitalRead(DIRECTION_LEFT_PIN);
-    motor_left.count_encoder_pulse((direction == 1) ? 1 : -1);
-}
+// Interrupt routine called when a pulse is detected from the
+// wheel encoder pins.The direction left is the opposite of the right
+// direction because the 2 wheels encoders are in mirrors.
 
 void encoder_pulse_right() {
+    int direction = digitalRead(DIRECTION_LEFT_PIN);
+    motor_right.count_encoder_pulse((direction == 1) ? 1 : -1);
+}
+
+void encoder_pulse_left() {
     int direction = digitalRead(DIRECTION_RIGHT_PIN);
-    motor_right.count_encoder_pulse((direction == 0) ? 1 : -1);
+    motor_left.count_encoder_pulse((direction == 0) ? 1 : -1);
 }

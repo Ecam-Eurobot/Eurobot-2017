@@ -1,4 +1,6 @@
+
 #include "regulation.h"
+#include <Arduino.h>
 
 Regulation::Regulation(Motor *left, Motor *right):
         motor_left(left), motor_right(right) {
@@ -39,8 +41,8 @@ void Regulation::tune() {
 
     // Restrict the speed compared to the last speed to avoid big jumps
     // of speed.
-    float cmd_left = set_command_limit(motor_left, lead_regul + rot_regul);
-    float cmd_right = set_command_limit(motor_right, lead_regul - rot_regul);
+    float cmd_left = lead_regul + rot_regul;
+    float cmd_right = lead_regul - rot_regul;
 
     // Actually send command to the motors (with speed limiting).
     send_command(cmd_left, cmd_right);
@@ -73,6 +75,7 @@ bool Regulation::is_finished() const {
 void Regulation::reset() {
     stop();
 
+    maxspeed = get_maxspeed();
     sum_errors_lead = 0;
     sum_errors_rot = 0;
     setpoint = 0;
@@ -100,10 +103,20 @@ bool Regulation::is_finished(float lead_err, float rot_err) {
 // Because the integral parts of PID can give a big overshoot,
 // we limit the overshoot when we are near the setpoint.
 void Regulation::update_sum_errors(float lead, float rot) {
-    if (lead < SUM_ERRORS_LIMIT) {
+    // Reset the integral value if we are in the opposite regulation
+    // because otherwise, we will need to decrease the sum error to the
+    // opposite before beginning to regulate correctly again.
+    if ((lead >= 0) != (sum_errors_lead >= 0)) {
+        sum_errors_lead = 0;
+    }
+    if ((rot >= 0) != (sum_errors_rot >= 0)) {
+        sum_errors_rot = 0;
+    }
+
+    if (abs(lead) < SUM_ERRORS_LIMIT) {
         sum_errors_lead += lead;
     }
-    if (rot < SUM_ERRORS_LIMIT) {
+    if (abs(rot) < SUM_ERRORS_LIMIT) {
         sum_errors_rot += rot;
     }
 }
@@ -124,34 +137,35 @@ float Regulation::get_rotation_regulation(float error) {
 // the setpoint).
 float Regulation::saturate_integral_regulation(float value) {
     if (abs(value) > INTEGRAL_SATURATION) {
-        return (value > 0) ? INTEGRAL_SATURATION : -INTEGRAL_SATURATION;
+        return (value > 0) ? INTEGRAL_SATURATION : - INTEGRAL_SATURATION;
     }
     return value;
 }
 
-// Limit the command to avoid demanding too much power to the motors and
+// Limit the command to avoid demanding too much powers to the motors and
 // soften the startup of the robot.
 float Regulation::set_command_limit(Motor *motor, float command) {
     int prev_cmd = motor->get_speed();
 
-    if (((int) abs(command) - prev_cmd) > PROGRESSIVE_COMMAND) {
-        float new_cmd = prev_cmd + PROGRESSIVE_COMMAND;
-        return (command > 0) ? new_cmd : -new_cmd;
+    if ((abs(command) - abs(prev_cmd)) > PROGRESSIVE_COMMAND) {
+        return abs(prev_cmd) + PROGRESSIVE_COMMAND;
     }
     return command;
 }
 
 // Send the speed control to the motors.
 void Regulation::send_command(float cmd_left, float cmd_right) {
-    float maxspeed_right = maxspeed, maxspeed_left = maxspeed;
+    float maxspeed_right = get_maxspeed(), maxspeed_left = get_maxspeed();
 
-    bool forward_left = cmd_left > 0;
-    bool forward_right = cmd_right > 0;
+    // Check if the motors should go forward or backward.
+    bool forward_left = cmd_left >= 0;
+    bool forward_right = cmd_right >= 0;
+    // Take the absolute speed of motors.
     cmd_left = abs(cmd_left);
     cmd_right = abs(cmd_right);
 
-    // If a motor is too behind, we can increase the max speed to
-    // reach the stability faster.
+    // If a motor is too slow compared to the others, we can increase
+    // the max speed to reach the stability faster.
     if (abs(cmd_left - cmd_right) > COMMAND_DELTA) {
         if (cmd_left > cmd_right) {
             maxspeed_left += MAX_SPEED_BOOST;
@@ -163,6 +177,9 @@ void Regulation::send_command(float cmd_left, float cmd_right) {
     // Limit the speed to the maximum speed defined.
     cmd_left = (cmd_left > maxspeed_left) ? maxspeed_left : cmd_left;
     cmd_right = (cmd_right > maxspeed_right) ? maxspeed_right : cmd_right;
+
+    cmd_left = set_command_limit(motor_left, cmd_left);
+    cmd_right = set_command_limit(motor_right, cmd_right);
 
     // Send the command to the motors.
     if (forward_left) {
@@ -177,25 +194,36 @@ void Regulation::send_command(float cmd_left, float cmd_right) {
     }
 }
 
+int Regulation::get_maxspeed() {
+    return MAXSPEED;
+}
+
 // Calculate the error in rotation and lead. This is the only thing changing from LeadRegulation and
 // RotationRegulation because the setpoint is used in differents places.
 
 float Regulation::get_lead_error() {
-    return (motor_left->get_encoder_counter() + motor_right->get_encoder_counter()) / 2;
+    return - (motor_left->get_encoder_counter() + motor_right->get_encoder_counter()) / 2;
 }
 
 float Regulation::get_rotation_error() {
-    return (motor_left->get_encoder_counter() - motor_right->get_encoder_counter()) / 2;
+    // When we are going left, we have a negative error and vice-versa.
+    return - (motor_left->get_encoder_counter() - motor_right->get_encoder_counter()) / 2;
 }
+
+// Define specifics regulations.
 
 LeadRegulation::LeadRegulation(Motor *left, Motor *right): Regulation(left, right) { }
 
 float LeadRegulation::get_lead_error() {
-    return setpoint - Regulation::get_lead_error();
+    return setpoint + Regulation::get_lead_error();
+}
+
+int LeadRegulation::get_maxspeed() {
+    return MAXSPEED;
 }
 
 RotationRegulation::RotationRegulation(Motor *left, Motor *right): Regulation(left, right) { }
 
 float RotationRegulation::get_rotation_error() {
-    return setpoint - Regulation::get_rotation_error();
+    return setpoint + Regulation::get_rotation_error();
 }

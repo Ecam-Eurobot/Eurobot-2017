@@ -14,7 +14,7 @@ class Motor {
         void count_encoder_pulse(int pulse);
         void reset_encoder_counter();
         long get_encoder_counter() const;
-        long get_encoder_distance() const;
+        int get_encoder_distance() const;
 
         static long convert_cm_to_imp(int cm);
         static int convert_imp_to_cm(long imp);
@@ -29,7 +29,6 @@ class Motor {
         // The final calculus is 1024*2/5 = 409.6
         static const float IMP_PER_REVOLUTION = 409.6;
         static const float IMP_DISTANCE = WHEEL_PERIMETER / IMP_PER_REVOLUTION;
-        // TODO: find where this value come from...
         static const float ANGLE_CORRECTION = 107.5 / 360;
 
         int pwm_pin, dir_pin;

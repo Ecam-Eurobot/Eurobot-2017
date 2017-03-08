@@ -40,8 +40,8 @@ long Motor::get_encoder_counter() const {
     return encoder_counter;
 }
 
-long Motor::get_encoder_distance() const {
-    return encoder_counter * IMP_DISTANCE;
+int Motor::get_encoder_distance() const {
+    return convert_imp_to_cm(encoder_counter);
 }
 
 static long Motor::convert_cm_to_imp(int cm) {
