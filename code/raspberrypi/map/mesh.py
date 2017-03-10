@@ -23,10 +23,10 @@ class Mesh():
 
         # Replicate the circle on the other edge of the map.
         if mirror:
-            points.append(Point(self.dimension[0] - p[0], p[1]))
+            points.append(Point(self.dimension[0] + self.robot_radius - p[0], p[1]))
 
         for point in points:
-            self._map -= mshr.Circle(point, radius + self.robot_radius, 30)
+            self._map -= mshr.Circle(point, radius + self.robot_radius, 5)
 
     def add_rectangle_obstacle(self, p1, p2, mirror=False):
         self._map -= mshr.Rectangle(

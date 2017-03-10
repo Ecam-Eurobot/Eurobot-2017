@@ -46,4 +46,4 @@ def build_map(removable=False):
 
 if __name__ == '__main__':
     m = build_map(removable=True)
-    m.display(accuracy=5)
+    m.display(accuracy=2)
