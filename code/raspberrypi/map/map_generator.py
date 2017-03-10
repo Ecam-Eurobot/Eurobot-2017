@@ -1,7 +1,7 @@
-from map import Map
+from mesh import Mesh
 
 def build_map(removable=False):
-    m = Map((300, 200), 17)
+    m = Mesh((300, 200), 17)
 
     # Define the start area.
     m.add_rectangle_obstacle((0, 36), (71, 38.2), mirror=True)

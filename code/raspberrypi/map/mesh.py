@@ -4,7 +4,7 @@ from dolfin import Point, plot
 import mshr
 
 
-class Map():
+class Mesh():
     def __init__(self, dimension, robot_radius):
         # Correct the map size by the robot_radius
         self.robot_radius = robot_radius
