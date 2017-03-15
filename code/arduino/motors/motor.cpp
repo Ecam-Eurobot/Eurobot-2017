@@ -24,7 +24,7 @@ void Motor::move_backward(int speed) {
     this->speed = speed;
 }
 
-int Motor::get_speed() {
+int Motor::get_speed() const {
     return speed;
 }
 

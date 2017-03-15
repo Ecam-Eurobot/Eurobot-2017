@@ -24,24 +24,24 @@ class Regulation {
 
     private:
         // Regulation gain.
-        const float KP_LEAD = 0.6;
-        const float KP_ROT = 0.6;
-        const float KI_LEAD = 0.006;
-        const float KI_ROT = 0.01;
+        static constexpr float KP_LEAD = 0.6;
+        static constexpr float KP_ROT = 0.6;
+        static constexpr float KI_LEAD = 0.006;
+        static constexpr float KI_ROT = 0.01;
 
-        const int SUM_ERRORS_LIMIT = 300;
-        const int INTEGRAL_SATURATION = 60;
+        static const int SUM_ERRORS_LIMIT = 300;
+        static const int INTEGRAL_SATURATION = 60;
         // Limit the speed command to the last command + PROGRESSIVE_COMMAND
         // to avoid demanding too much to the motors and the alim.
-        const int PROGRESSIVE_COMMAND = 10;
+        static const int PROGRESSIVE_COMMAND = 10;
         // Difference of commands to decide if we need to increase the max
         // speed of a motor.
-        const int COMMAND_DELTA = 3;
-        const int MAX_SPEED_BOOST = 5;
+        static const int COMMAND_DELTA = 3;
+        static const int MAX_SPEED_BOOST = 5;
 
-        const int REGULATION_PRECISION = 2;
+        static const int REGULATION_PRECISION = 2;
 
-        const int MAXSPEED = 50;
+        static const int MAXSPEED = 50;
 
         Motor *motor_left, *motor_right;
         int maxspeed;
@@ -63,7 +63,7 @@ class LeadRegulation : public Regulation {
         LeadRegulation(Motor *left, Motor *right);
 
     private:
-        const int MAXSPEED = 80;
+        static const int MAXSPEED = 80;
 
         float get_lead_error();
         int get_maxspeed();
