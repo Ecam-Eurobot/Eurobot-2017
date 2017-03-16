@@ -36,6 +36,7 @@ void Motor::reset_encoder_counter() {
     encoder_counter = 0;
 }
 
+// Get the number of pulse from the wheel encoder.
 long Motor::get_encoder_counter() const {
     return encoder_counter;
 }

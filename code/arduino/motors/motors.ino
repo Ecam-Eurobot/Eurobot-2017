@@ -31,6 +31,7 @@ enum Commands {
 };
 
 // Encoder wheel pins
+// IMP_ENCODER_{LEFT,RIGHT}_PIN should be interrupt pins.
 const int IMP_ENCODER_LEFT_PIN = 3;
 const int IMP_ENCODER_RIGHT_PIN = 2;
 const int DIRECTION_LEFT_PIN = 5;
@@ -74,6 +75,7 @@ void setup() {
 
 void loop() {
     if (regulation) {
+        // Tune the motors speed.
         regulation->tune();
     }
     delay(10);
@@ -93,9 +95,21 @@ void receive_i2c_data(int byteCount) {
             data = dataReceived;
         }
     }
-    if ((data != -1) || (command > 4)) {
+    if ((data != -1) || !has_command_data(command)) {
         execute_action();
     }
+}
+
+bool has_command_data(int command) {
+    switch (command) {
+        case Forward:
+        case Backward:
+        case TurnLeft:
+        case TurnRight:
+        case SetSpeed:
+            return true;
+    }
+    return false;
 }
 
 void execute_action() {
