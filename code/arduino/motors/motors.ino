@@ -33,8 +33,8 @@ enum Commands {
 // Encoder wheel pins
 const int IMP_ENCODER_LEFT_PIN = 3;
 const int IMP_ENCODER_RIGHT_PIN = 2;
-const int DIRECTION_LEFT_PIN = 4;
-const int DIRECTION_RIGHT_PIN = 5;
+const int DIRECTION_LEFT_PIN = 5;
+const int DIRECTION_RIGHT_PIN = 4;
 
 // Motor pins.
 const int PWM_MOTOR_LEFT = 10;
@@ -187,11 +187,11 @@ void send_i2c_data() {
 // direction because the 2 wheels encoders are in mirrors.
 
 void encoder_pulse_right() {
-    int direction = digitalRead(DIRECTION_LEFT_PIN);
+    int direction = digitalRead(DIRECTION_RIGHT_PIN);
     motor_right.count_encoder_pulse((direction == 1) ? 1 : -1);
 }
 
 void encoder_pulse_left() {
-    int direction = digitalRead(DIRECTION_RIGHT_PIN);
+    int direction = digitalRead(DIRECTION_LEFT_PIN);
     motor_left.count_encoder_pulse((direction == 0) ? 1 : -1);
 }
