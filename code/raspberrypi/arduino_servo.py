@@ -10,7 +10,7 @@ class Adress(IntEnum) :
     SERVO_DYNAMIXEL = 1
 
 
-class MoveServo(I2C) :
+class ArduinoServo(I2C) :
     """
     This class is an abstraction around the I2C communication with
     the servo-arduino module.
@@ -30,7 +30,7 @@ class MoveServo(I2C) :
 
     def __init__(self, address):
         """Constructor takes the adress of the I2C module"""
-        super(MoveServo, self).__init__(address)
+        super(ArduinoServo, self).__init__(address)
 
     def up_clamp(self) :
         cmd = I2C.pack8(Adress.SERVO_DYNAMIXEL, Command.MOVE_UP)

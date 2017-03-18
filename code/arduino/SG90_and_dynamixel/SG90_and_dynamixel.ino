@@ -10,13 +10,16 @@ const int ANGLE_DYNAMIXEL_VERTICAL = 810;
 //const int ANGLE_VERTICAL = 205; Depend on the dynamixel's position 
 
 //I2C slave adresses
-const byte SLAVE_ADDRESS = 0x01; //ToDefine 
+const byte SLAVE_ADDRESS = 0x06; //ToDefine 
 
 //Clamp servo const 
 const int SERVO_PIN = 9; 
 const int CLAMP_OPEN_ANGLE = 0;
 const int CLAMP_CLOSE_ANGLE = 180; 
 Servo servo_clamp;
+
+int servo;
+int action;
 
 //TODO Define other servos and positions 
 
@@ -31,40 +34,30 @@ void setup() {
 
   //Attache the clamp servo on the DYNAMIXEL_PIN (PWM);
   servo_clamp.attach(SERVO_PIN);
+
 }
 
 void loop() {
-  process_action(0000, 0000);
-  delay(1000);
-  process_action(0000, 0001);
-  delay(1000);
-  process_action(0001, 0000);
-  delay(1000);
-  process_action(0001, 0001);
-  delay(1000);
-
-  exit(0);
-    
+process_action(servo, action);
 }
 
 void receive_data(int byte_count) {
-  byte servo = 0;
-  byte action = 0;
-  bool command_processed = true;
+   bool command_processed = true;
   
   while(Wire.available()){
     if (command_processed == true) {
       byte dataReceived = Wire.read();
-
+     
       servo = dataReceived >> 4;
       action = dataReceived & 0x0F;
       command_processed = false;
+
     } 
     else {
       Wire.read();
     }
   }
-  process_action(servo, action);
+  
 }
 
 void process_action(byte servo, byte action) {
@@ -100,7 +93,7 @@ void change_servo_angle(Servo *servo, int angle) {
 void move_dynamixel_angle(int angle) {
   Dynamixel.ledStatus(DYNAMIXEL_ADDRESS,ON);
   Dynamixel.move(DYNAMIXEL_ADDRESS, angle); 
-  Dynamixel.ledStatus(DYNAMIXEL_ADDRESS,ON);
+  Dynamixel.ledStatus(DYNAMIXEL_ADDRESS,OFF);
 }
 
 
