@@ -13,10 +13,14 @@ const int ANGLE_DYNAMIXEL_VERTICAL = 810;
 const byte SLAVE_ADDRESS = 0x06; //ToDefine 
 
 //Clamp servo const 
-const int SERVO_PIN = 9; 
+const int SERVO_CLAMP_PIN = 9; 
+const int SERVO_PUSH_PIN = 10; //TO DEFINE
+const int SERVO_PUSH_PIN = 11; 
 const int CLAMP_OPEN_ANGLE = 0;
 const int CLAMP_CLOSE_ANGLE = 180; 
 Servo servo_clamp;
+Servo servo_push;
+Servo servo_stack; 
 
 int servo;
 int action;
@@ -32,9 +36,10 @@ void setup() {
    pinMode(DYNAMIXEL_CTRL_PIN, INPUT); 
    Dynamixel.begin(1000000, DYNAMIXEL_CTRL_PIN);
 
-  //Attache the clamp servo on the DYNAMIXEL_PIN (PWM);
-  servo_clamp.attach(SERVO_PIN);
-
+  //Attache the servo on the PWM pin;
+  servo_clamp.attach(SERVO_CLAMP_PIN);
+  servo_push.attach(SERVO_PUSH_PIN);
+  servo_stack.attach(SERVO_STACK_PIN);
 }
 
 void loop() {
@@ -77,8 +82,23 @@ void process_action(byte servo, byte action) {
       else if (action == 1) {
         move_dynamixel_angle(ANGLE_DYNAMIXEL_VERTICAL); 
       }
-      break;  
-   //Ohter cases ...  
+      break;
+    case 2: 
+      if (action == 0) {
+        change_servo_angle(&servo_push, CLAMP_OPEN_ANGLE);
+      } 
+      else if (action == 1) {
+        change_servo_angle(&servo_push, CLAMP_CLOSE_ANGLE);
+      }
+      break;
+    case 3: 
+      if (action == 0) {
+        change_servo_angle(&servo_stack, CLAMP_OPEN_ANGLE);
+      } 
+      else if (action == 1) {
+        change_servo_angle(&servo_stack, CLAMP_CLOSE_ANGLE);
+      }
+      break;   
    default : 
      break; //TODO : do something when value is not right?   
   } 
