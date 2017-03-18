@@ -2,18 +2,18 @@
 #include <Wire.h>
 #include <DynamixelSerial.h>
 
-//Dynamixel slave adress
-const int DYNAMIXEL_ADDRESS = 6;
-
-//Define the positions of the Dynamixel
+//Dynamixel const 
+const int DYNAMIXEL_ADDRESS = 4;
+const int DYNAMIXEL_CTRL_PIN = 2; 
 const int ANGLE_DYNAMIXEL_HORIZONTAL = 508;
 const int ANGLE_DYNAMIXEL_VERTICAL = 810;
 //const int ANGLE_VERTICAL = 205; Depend on the dynamixel's position 
 
-//I2C slave adresses for SG90 
+//I2C slave adresses
 const byte SLAVE_ADDRESS = 0x01; //ToDefine 
 
-//Define wich position open/close the clamp 
+//Clamp servo const 
+const int SERVO_PIN = 9; 
 const int CLAMP_OPEN_ANGLE = 0;
 const int CLAMP_CLOSE_ANGLE = 180; 
 Servo servo_clamp;
@@ -25,11 +25,27 @@ void setup() {
    Wire.onReceive(receive_data);
    //Wire.onRequest(sendData);
 
-  //Attache the clamp servo on pin 9 (PWM)
-  servo_clamp.attach(9);
+   //Set the actual baudrate et ctrl pin (input) for the dynamixel
+   pinMode(DYNAMIXEL_CTRL_PIN, INPUT); 
+   Dynamixel.begin(1000000, DYNAMIXEL_CTRL_PIN);
+
+  //Attache the clamp servo on the DYNAMIXEL_PIN (PWM);
+  servo_clamp.attach(SERVO_PIN);
 }
 
-void loop() {}
+void loop() {
+  process_action(0000, 0000);
+  delay(1000);
+  process_action(0000, 0001);
+  delay(1000);
+  process_action(0001, 0000);
+  delay(1000);
+  process_action(0001, 0001);
+  delay(1000);
+
+  exit(0);
+    
+}
 
 void receive_data(int byte_count) {
   byte servo = 0;
@@ -71,7 +87,7 @@ void process_action(byte servo, byte action) {
       break;  
    //Ohter cases ...  
    default : 
-     break; //TODO : do something when value is not right  
+     break; //TODO : do something when value is not right?   
   } 
 }
 
