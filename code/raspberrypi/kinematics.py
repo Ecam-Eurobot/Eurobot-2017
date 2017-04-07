@@ -11,7 +11,7 @@ class Adress(IntEnum) :
     SERVO_PUSH = 2
 
 
-class ArduinoServo(I2C) :
+class Kinematics(I2C) :
     """
     This class is an abstraction around the I2C communication with
     the servo-arduino module.
@@ -20,18 +20,14 @@ class ArduinoServo(I2C) :
 
     The Raspberry Pi sends a byte to the module containing a command
     and a servo number. Both informations are coded on 4 bits
-    totalling 8 bits together. The 4 first bits are for the serov adress,
-
+    totalling 8 bits together. The 4 first bits are for the servo address,
     and the 4 next is used for the action to do with it.
-
-    Opening/closing the clamp adress is 0
-    Dynamixel (ascending and descending the clamp) adress is 1
 
     """
 
     def __init__(self, address):
         """Constructor takes the adress of the I2C module"""
-        super(ArduinoServo, self).__init__(address)
+        super(Kinematics, self).__init__(address)
 
     def up_clamp(self) :
         cmd = I2C.pack8(Adress.SERVO_DYNAMIXEL, Command.MOVE_UP)
