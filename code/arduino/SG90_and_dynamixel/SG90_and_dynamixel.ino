@@ -17,7 +17,7 @@ const byte SLAVE_ADDRESS = 0x06; //ToDefine
 const int SERVO_CLAMP_PIN = 9; 
 const int SERVO_PUSH_PIN = 10;
 const int PUSH_BACK = 60;
-const int PUSH_OUT = 25; 
+const int PUSH_OUT = 20; 
 const int CLAMP_OPEN_ANGLE = 70;
 const int CLAMP_CLOSE_ANGLE = 180; 
 Servo servo_clamp;
