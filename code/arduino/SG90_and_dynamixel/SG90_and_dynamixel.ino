@@ -3,10 +3,11 @@
 #include <DynamixelSerial.h>
 
 //Dynamixel const 
-const int DYNAMIXEL_ADDRESS = 4;
+const int DYNAMIXEL_ADDRESS = 6;
 const int DYNAMIXEL_CTRL_PIN = 2; 
+//RIGHT VALUE FOR DYNAMIXEL
 const int ANGLE_DYNAMIXEL_HORIZONTAL = 508;
-const int ANGLE_DYNAMIXEL_VERTICAL = 810;
+const int ANGLE_DYNAMIXEL_VERTICAL = 830;
 //const int ANGLE_VERTICAL = 205; Depend on the dynamixel's position 
 
 //I2C slave adresses
@@ -14,14 +15,14 @@ const byte SLAVE_ADDRESS = 0x06; //ToDefine
 
 //Clamp servo const 
 const int SERVO_CLAMP_PIN = 9; 
-const int SERVO_PUSH_PIN = 10; //TO DEFINE
-const int SERVO_PUSH_PIN = 11; 
-const int CLAMP_OPEN_ANGLE = 0;
+const int SERVO_PUSH_PIN = 10;
+const int PUSH_BACK = 60;
+const int PUSH_OUT = 25; 
+const int CLAMP_OPEN_ANGLE = 70;
 const int CLAMP_CLOSE_ANGLE = 180; 
 Servo servo_clamp;
 Servo servo_push;
-Servo servo_stack; 
-
+ 
 int servo;
 int action;
 
@@ -39,11 +40,11 @@ void setup() {
   //Attache the servo on the PWM pin;
   servo_clamp.attach(SERVO_CLAMP_PIN);
   servo_push.attach(SERVO_PUSH_PIN);
-  servo_stack.attach(SERVO_STACK_PIN);
+  //servo_stack.attach(SERVO_STACK_PIN);
 }
 
 void loop() {
-process_action(servo, action);
+  process_action(servo, action);
 }
 
 void receive_data(int byte_count) {
@@ -85,25 +86,16 @@ void process_action(byte servo, byte action) {
       break;
     case 2: 
       if (action == 0) {
-        change_servo_angle(&servo_push, CLAMP_OPEN_ANGLE);
+        change_servo_angle(&servo_push, PUSH_BACK);
       } 
       else if (action == 1) {
-        change_servo_angle(&servo_push, CLAMP_CLOSE_ANGLE);
-      }
-      break;
-    case 3: 
-      if (action == 0) {
-        change_servo_angle(&servo_stack, CLAMP_OPEN_ANGLE);
-      } 
-      else if (action == 1) {
-        change_servo_angle(&servo_stack, CLAMP_CLOSE_ANGLE);
+        change_servo_angle(&servo_push, PUSH_OUT);
       }
       break;   
    default : 
-     break; //TODO : do something when value is not right?   
+     break; //do something when value is not right?   
   } 
 }
-
 
 //Use a specifique servo and give it an angle
 void change_servo_angle(Servo *servo, int angle) {
