@@ -9,7 +9,6 @@ class Adress(IntEnum) :
     SERVO_CLAMP = 0
     SERVO_DYNAMIXEL = 1
     SERVO_PUSH = 2
-    SERVO_STACK = 3
 
 
 class ArduinoServo(I2C) :
@@ -51,17 +50,9 @@ class ArduinoServo(I2C) :
         self.send(cmd)
 
     def push_out(self) :
-        cmd = I2C.pack8(Adress.SERVO_PUSH, Command.MOVE_DOWN)
-        self.send(cmd)
-
-    def push_back(self) :
         cmd = I2C.pack8(Adress.SERVO_PUSH, Command.MOVE_UP)
         self.send(cmd)
 
-    def stack_bloc(self) :
-        cmd = I2C.pack8(Adress.SERVO_STACK, Command.MOVE_DOWN)
-        self.send(cmd)
-
-    def release_bloc(self) :
-        cmd = I2C.pack8(Adress.SERVO_STACK, Command.MOVE_UP)
+    def push_back(self) :
+        cmd = I2C.pack8(Adress.SERVO_PUSH, Command.MOVE_DOWN)
         self.send(cmd)
