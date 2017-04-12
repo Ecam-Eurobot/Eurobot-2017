@@ -1,4 +1,3 @@
-
 #include "regulation.h"
 #include <Arduino.h>
 
@@ -81,8 +80,8 @@ void Regulation::reset() {
     setpoint = 0;
     finished = true;
 
-    motor_left->reset_encoder_counter();
-    motor_right->reset_encoder_counter();
+    motor_left->reset();
+    motor_right->reset();
 }
 
 bool Regulation::is_finished(float lead_err, float rot_err) {
@@ -155,7 +154,7 @@ float Regulation::set_command_limit(Motor *motor, float command) {
 
 // Send the speed control to the motors.
 void Regulation::send_command(float cmd_left, float cmd_right) {
-    float maxspeed_right = get_maxspeed(), maxspeed_left = get_maxspeed();
+    float maxspeed_right = maxspeed, maxspeed_left = maxspeed;
 
     // Check if the motors should go forward or backward.
     bool forward_left = cmd_left >= 0;
