@@ -25,18 +25,18 @@ class Regulation {
     private:
         // Regulation gain.
         static constexpr float KP_LEAD = 0.6;
-        static constexpr float KP_ROT = 0.6;
+        static constexpr float KP_ROT = 0.5;
         static constexpr float KI_LEAD = 0.006;
-        static constexpr float KI_ROT = 0.01;
+        static constexpr float KI_ROT = 0.008;
 
         static const int SUM_ERRORS_LIMIT = 300;
         static const int INTEGRAL_SATURATION = 60;
         // Limit the speed command to the last command + PROGRESSIVE_COMMAND
         // to avoid demanding too much to the motors and the alim.
-        static const int PROGRESSIVE_COMMAND = 10;
+        static const int PROGRESSIVE_COMMAND = 3;
         // Difference of commands to decide if we need to increase the max
         // speed of a motor.
-        static const int COMMAND_DELTA = 3;
+        static const int COMMAND_DELTA = 2;
         static const int MAX_SPEED_BOOST = 5;
 
         static const int REGULATION_PRECISION = 2;
