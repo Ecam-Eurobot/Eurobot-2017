@@ -1,5 +1,7 @@
-import unittest
+import logging
 import smbus
+import time
+import unittest
 
 
 class I2C:
@@ -17,6 +19,9 @@ class I2C:
 
     # Can handle numbers aswell as lists
     def send(self, data):
+        self.__execute_i2c(self.__send(data))
+
+    def __send(self, data):
         """Send data to the module it represents"""
         if isinstance(data, list):
             for byte in data:
@@ -27,12 +32,28 @@ class I2C:
     # read_i2c_block_data can't process more than 32 bytes, so num_bytes should
     # not be greater than 32 !!
     def receive(self, num_bytes=1):
+        self.__execute_i2c(self.__receive(num_bytes))
+
+    def __receive(self, num_bytes):
         """Receive a specific amount of data from the module it represents"""
         data = self.bus.read_i2c_block_data(self.address, 0x00, num_bytes)
         if len(data) == 1:
             return data[0]
         else:
             return data
+
+    def __execute_i2c(self, callback, *args, **kwargs):
+        """
+        If we send I2C command when the bus is still busy, we get an OSError,
+        we should retry a few time before creating a real error.
+        """
+        for _ in range(10):
+            try:
+                return callback(args, kwargs)
+            except IOError as e:
+                logging.info('Failed to send to I2C bus')
+                time.sleep(0.1)
+        raise Exception('There is a problem with the bus I2C.')
 
     def pack8(high, low):
         """Takes two 4 bit variables and packs them together into 8 bits"""
