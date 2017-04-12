@@ -1,21 +1,5 @@
-#from range_sensors import RangeSensor
-from arduino_servo import ArduinoServo
-import time
+from robot import Robot
 
-# Testing code to see if it works
-#sensors = RangeSensor(4)
-servo = ArduinoServo(6)
-time.sleep(0.1)
-
-while True:
-    servo.up_clamp()
-    time.sleep(2)
-    servo.down_clamp()
-    time.sleep(2)
-    servo.open_clamp()
-    time.sleep(2)
-    servo.close_clamp()
-    time.sleep(2)
-    #print("Sensor 1: " + str(sensors.get_range(0)))
-    #print("Sensor 2: " + str(sensors.get_range(1)))
-    time.sleep(1)
+if __name__ == '__main__':
+    initial_pos = (10, 20)
+    robot = Robot(initial_pos)
