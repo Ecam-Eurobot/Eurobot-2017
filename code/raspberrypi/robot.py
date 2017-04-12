@@ -16,22 +16,22 @@ class Robot():
         for i in range(number):
             self._kinematic.release_block()
             self._kinematic.down_clamp()
-            time.sleep(DELAY_UP_DOWN_CLAMP)
+            time.sleep(self._DELAY_UP_DOWN_CLAMP)
             self._motors.forward(distance)
             while not self._motors.is_done():
                 time.sleep(0.5)
             self._kinematic.close_clamp()
-            time.sleep(DELAY_OPEN_CLOSE_CLAMP)
+            time.sleep(self._DELAY_OPEN_CLOSE_CLAMP)
             self._motors.backward(distance)
             while not self._motors.is_done():
                 time.sleep(0.5)
             self._kinematic.up_clamp()
-            time.sleep(DELAY_UP_DOWN_CLAMP)
+            time.sleep(self._DELAY_UP_DOWN_CLAMP)
             self._kinematic.open_clamp()
 
     def eject_modules(self, number=1):
         for i in range(number):
             self._kinematic.push_out()
-            time.sleep(DELAY_IN_OUT_BLOCK)
+            time.sleep(self._DELAY_IN_OUT_BLOCK)
             self._kinematic.push_back()
             time.sleep(DELAY_IN_OUT_BLOCK)
