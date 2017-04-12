@@ -32,10 +32,10 @@ enum Commands {
 
 // Encoder wheel pins
 // IMP_ENCODER_{LEFT,RIGHT}_PIN should be interrupt pins.
-const int IMP_ENCODER_LEFT_PIN = 3;
-const int IMP_ENCODER_RIGHT_PIN = 2;
-const int DIRECTION_LEFT_PIN = 5;
-const int DIRECTION_RIGHT_PIN = 4;
+const int IMP_ENCODER_LEFT_PIN = 2;
+const int IMP_ENCODER_RIGHT_PIN = 3;
+const int DIRECTION_LEFT_PIN = 4;
+const int DIRECTION_RIGHT_PIN = 5;
 
 // Motor pins.
 const int PWM_MOTOR_LEFT = 10;
