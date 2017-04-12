@@ -55,7 +55,13 @@ class RangeSensor(I2C):
         """Requests the last measurements of all sensors"""
         cmd = I2C.pack8(Command.MeasureAll, 0)
         self.send(cmd)
-        return self.receive(2 * self.n)
+        data = self.receive(2 * self.n)
+
+        ranges = list()
+        for i in range(self.n):
+            j = i*2
+            ranges.append(I2C.pack16(data[(i*2)+1], data[i*2]))
+        return ranges
 
     def get_number_of_sensors(self):
         """Requests the number of available sensors"""
