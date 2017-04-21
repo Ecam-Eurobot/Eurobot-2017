@@ -6,8 +6,8 @@
 const int DYNAMIXEL_ADDRESS = 6;
 const int DYNAMIXEL_CTRL_PIN = 2;
 //RIGHT VALUE FOR DYNAMIXEL
-const int ANGLE_DYNAMIXEL_HORIZONTAL = 508;
-const int ANGLE_DYNAMIXEL_VERTICAL = 830;
+const int ANGLE_DYNAMIXEL_HORIZONTAL = 502;
+const int ANGLE_DYNAMIXEL_VERTICAL = 840;
 
 //I2C slave adresse
 const byte SLAVE_ADDRESS = 0x06;
@@ -17,12 +17,12 @@ const int SERVO_CLAMP_PIN = 9;
 const int SERVO_PUSH_PIN = 10;
 const int SERVO_FUNNY_PIN = 11;
 const int PUSH_BACK = 60;
-const int PUSH_OUT = 20;
+const int PUSH_OUT = 0;
 const int CLAMP_OPEN_ANGLE = 70;
 const int CLAMP_CLOSE_ANGLE = 180;
 //TODO : define funny action's servo values
 const int FUNNY_SET = 100;
-const int FUNNY_RESET = 0;
+const int FUNNY_RESET = 10;
 Servo servo_clamp;
 Servo servo_push;
 Servo servo_funny;
