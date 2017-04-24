@@ -25,8 +25,8 @@ class Regulation {
     private:
         // Regulation gain.
         static constexpr float KP_LEAD = 0.6;
-        static constexpr float KP_ROT = 0.5;
-        static constexpr float KI_LEAD = 0.006;
+        static constexpr float KP_ROT = 0.6;
+        static constexpr float KI_LEAD = 0.008;
         static constexpr float KI_ROT = 0.008;
 
         static const int SUM_ERRORS_LIMIT = 300;
@@ -39,7 +39,7 @@ class Regulation {
         static const int COMMAND_DELTA = 2;
         static const int MAX_SPEED_BOOST = 5;
 
-        static const int REGULATION_PRECISION = 2;
+        static const int REGULATION_PRECISION = 6;
 
         static const int MAXSPEED = 50;
 
