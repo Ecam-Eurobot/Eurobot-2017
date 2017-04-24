@@ -16,10 +16,11 @@ class Robot:
 
     # US sensors constants.
     US_SENSORS = [
-        {'name': 'front', 'trigger_limit': 10, 'sensors': [0, 1]},
+        {'name': 'front_bottom', 'trigger_limit': 10, 'sensors': [0, 1]},
         {'name': 'left', 'trigger_limit': 10, 'sensors': [2]},
+        {'name': 'back', 'trigger_limit': 5, 'sensors': [4]},
         {'name': 'right', 'trigger_limit': 10, 'sensors': [3]},
-        {'name': 'back', 'trigger_limit': 5, 'sensors': [4]}
+        {'name': 'front_top', 'trigger_limit': 10, 'sensors': [0, 1]},
     ]
 
     DIMENSION = {
@@ -39,7 +40,7 @@ class Robot:
         """
         self._position = position
 
-        self._us_sensors = RangeSensor(4)
+        #  self._us_sensors = RangeSensor(4)
         self._motors = Motors(5)
         self._kinematic = Kinematics(6)
 
@@ -50,7 +51,6 @@ class Robot:
 
     def take_modules(self, number=1, distance=0):
         for i in range(number):
-            self._kinematic.release_block()
             self._kinematic.down_clamp()
             time.sleep(self._DELAY_UP_DOWN_CLAMP)
             self._motors.forward(distance)
@@ -61,6 +61,17 @@ class Robot:
             self._motors.backward(distance)
             while not self._motors.is_done(self.__done_callback):
                 time.sleep(0.5)
+
+            #SEULEMENT SI ON DECIDE DE RECULER POUR MIEUX PRENDRE LE MODULE ---
+            self._kinematic.open_clamp()
+            time.sleep(self._DELAY_OPEN_CLOSE_CLAMP)
+            self._motors.forward(2.5)
+            while not self._motors.is_done(self.__done_callback):
+                time.sleep(0.5)
+            self._kinematic.close_clamp()
+            time.sleep(self._DELAY_OPEN_CLOSE_CLAMP)
+            #---
+
             self._kinematic.up_clamp()
             time.sleep(self._DELAY_UP_DOWN_CLAMP)
             self._kinematic.open_clamp()
@@ -69,6 +80,9 @@ class Robot:
         for i in range(number):
             self._kinematic.push_out()
             time.sleep(self._DELAY_IN_OUT_BLOCK)
+            if number == 4 and i == 2:
+                self._kinematic.open_clamp()
+                time.sleep(self._DELAY_OPEN_CLOSE_CLAMP)
             self._kinematic.push_back()
             time.sleep(self._DELAY_IN_OUT_BLOCK)
 
@@ -80,16 +94,25 @@ class Robot:
         """
         while True:
             instructions = self._graph.get_path(self._position, target)
-            status = self._motors.move_with_instructions(instructions, self.__move_callback)
+            status = self._motors.move_with_instructions(instructions, self.__move_callback,
+                    self.__done_callback)
             if status == 'ok':
                 break
+
+    def finalize(self):
+        self._motors.stop()
+
+        self._kinematic.launch_funny()
+        time.sleep(1)
+        self._kinematic.reset_funny()
 
     def __move_callback(self):
         """
         Return a string giving the state if we need to stop or not the regulation because of
         an obstacle.
         """
-        ranges = self._us_sensors.get_ranges()
+        #  ranges = self._us_sensors.get_ranges()
+        ranges = [20, 20, 20, 20, 20]
 
         for us_data in self.US_SENSORS:
             for i, sensor in enumerate(us_data['sensors']):
@@ -120,6 +143,7 @@ class Robot:
 
         logging.info('Regulation is done!')
         self.__update_robot_position(distance_travelled)
+        print(self._position)
 
         return status
 
@@ -127,10 +151,10 @@ class Robot:
         left = distance_travelled['left']
         right = distance_travelled['right']
 
-        if self.__opposite_sign(left, right):
+        if self.__is_opposite_sign(left, right):
             # We finished a rotation regulation.
-            angle = ((left - right) / 2) / Motors.ANGLE_CORRECTION
-            self._position['angle'] = angle
+            angle = ((right - left) / 2) / Motors.ANGLE_CORRECTION
+            self._position['angle'] += angle
             logging.info('Robot turned with an angle of %i', angle)
         else:
             # We finished a lead regulation.
@@ -140,7 +164,7 @@ class Robot:
             self._position['point'][0] += distance * math.cos(math.radians(angle))
             self._position['point'][1] += distance * math.sin(math.radians(angle))
 
-    def __is_opposite_sign(n, m):
+    def __is_opposite_sign(self, n, m):
         if n > 0 and m > 0:
             return False
         elif n < 0 and m < 0:
