@@ -21,7 +21,7 @@ class Mesh():
 
         self._mesh2d = None
 
-    def add_circle_obstacle(self, p, radius, mirror=False):
+    def add_circle_obstacle(self, p, radius, mirror=False, accuracy=10):
         points = [Point(p[0], p[1])]
 
         # Replicate the circle on the other edge of the map.
@@ -29,7 +29,7 @@ class Mesh():
             points.append(Point(self.dimension[0] + self.robot_radius - p[0], p[1]))
 
         for point in points:
-            self._map -= mshr.Circle(point, radius + self.robot_radius, 5)
+            self._map -= mshr.Circle(point, radius + self.robot_radius, accuracy)
 
     def add_rectangle_obstacle(self, p1, p2, mirror=False):
         self._map -= mshr.Rectangle(
@@ -83,7 +83,7 @@ class Mesh():
         return Point(p.x() + self.robot_radius*inverse,
                      p.y() + self.robot_radius*inverse)
 
-    def build(self, accuracy=10, cache=False):
+    def build(self, accuracy=5, cache=False):
         if cache and os.path.exists(self._cache_path):
             self._mesh2d = DolfinMesh(self._cache_path)
             return

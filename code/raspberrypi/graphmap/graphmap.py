@@ -1,26 +1,26 @@
 import math
 import os.path
 import operator
+import pprint
 
-import matplotlib.pyplot as plt
 import networkx as nx
 
-from utils import GraphUtils
+from .utils import GraphUtils
 
 class GraphMap:
-    def __init__(self, nodes, triangles, cache=False):
+    CACHE_PATH = 'graphmap.data'
+    def __init__(self, nodes, triangles, cache=True):
         """
         nodes represent the (x, y) address of nodes in the graph.
         triangles give the 3 positions in nodes array to form a triangle.
         """
         self._cache = cache
-        self._cache_path = '/tmp/graphmap.data'
 
         # Remove nodes and edges to simulate obstacles.
         self._obstacles_cache = {'nodes': [], 'edges': []}
 
         self._graph = None
-        if self._cache and os.path.exists(self._cache_path):
+        if self._cache and os.path.exists(self.CACHE_PATH):
             self._graph = self.__read_cache()
         else:
             self.__build_graph_from_mesh(nodes, triangles)
@@ -30,16 +30,17 @@ class GraphMap:
         START_NODE_ID = 1000
         END_NODE_ID = 1001
 
-        # Get the neirest node from the robot position and the target position.
-        # The direction is of start_node is the target (make sense) and vise-versa.
-        start_node = self.get_neirest_node_pos(robot_pos['point'], target['point'])
-        end_node = self.get_neirest_node_pos(target['point'], robot_pos['point'])
-
         # Remove edge added to the process before looking for the shortest path.
         # This could give unvalid result.
         nodes = self._graph.nodes()
         if START_NODE_ID in nodes and END_NODE_ID in nodes:
-            self._graph.remove_node(START_NODE_ID, END_NODE_ID)
+            self._graph.remove_node(START_NODE_ID)
+            self._graph.remove_node(END_NODE_ID)
+
+        # Get the neirest node from the robot position and the target position.
+        # The direction is of start_node is the target (make sense) and vise-versa.
+        start_node = self.get_neirest_node_pos(robot_pos['point'], target['point'])
+        end_node = self.get_neirest_node_pos(target['point'], robot_pos['point'])
 
         path = nx.shortest_path(self._graph, source=start_node, target=end_node, weight='weight')
 
@@ -97,36 +98,45 @@ class GraphMap:
         """
         Use matplotlib to display graph.
         """
+        import matplotlib.pyplot as plt
+
         node_color = list(nx.get_node_attributes(self._graph, 'color').values())
         edge_color = list(nx.get_edge_attributes(self._graph, 'color').values())
+        _, ax = plt.subplots()
+        ax.axis('equal')
         nx.draw_networkx(self._graph, nx.get_node_attributes(self._graph, 'pos'),
                          node_size=20, with_labels=True, edge_color=edge_color,
-                         node_color=node_color)
+                         node_color=node_color, ax=ax)
         plt.show()
 
     def save(self):
-        nx.write_gpickle(self._graph, self._cache_path)
+        nx.write_gpickle(self._graph, self.CACHE_PATH)
 
     def __read_cache(self):
-        return nx.read_gpickle(self._cache_path)
+        return nx.read_gpickle(self.CACHE_PATH)
 
     def get_neirest_node_pos(self, point, direction):
         """
         Get the neirest node position according to the direction.
         Takes 2 nodes ID and return another one.
         """
-        best_matches = []
+        best_matches = {'dist_point': 100}
         # Get the neirest points.
         for node in self._graph.nodes():
             node_pos = self._graph.node[node]['pos']
             dist_point = self.__distance_btw_points(point, node_pos)
-            dist_dest = self.__distance_btw_points(direction, node_pos)
-            if dist_point < 30:
-                best_matches.append({'dist_point': dist_point,
-                                     'dist_dest': dist_dest,
-                                     'node': node})
+
+            if dist_point < best_matches['dist_point']:
+                best_matches = { 'dist_point': dist_point, 'node': node }
+            #  dist_dest = self.__distance_btw_points(direction, node_pos)
+            #  if dist_point < 30:
+                #  best_matches.append({'dist_point': dist_point,
+                                     #  'dist_dest': dist_dest,
+                                     #  'node': node})
         # Get the point which is the closest to the direction we need to go to.
-        return sorted(best_matches, key=operator.itemgetter('dist_dest'))[0]['node']
+        #  pprint.pprint(best_matches)
+        #  return sorted(best_matches, key=operator.itemgetter('dist_dest'))[0]['node']
+        return best_matches['node']
 
     def __simplify_turn_angle(self, angle):
         """
@@ -155,8 +165,9 @@ class GraphMap:
         actions = []
 
         # First turn is a bit specific so we don't do it in the for loop.
-        start_angle_constrain = self.__get_node_angle(path[0], path[1])
-        actions.append({'action': 'turn', 'value': self.__simplify_turn_angle(start_angle_constrain - robot_angle)})
+        start_angle_constrain = self.__get_node_angle(path[1], path[0])
+        actions.append({'action': 'turn', 'value': self.__simplify_turn_angle(robot_angle
+            - start_angle_constrain)})
 
         for i in range(len(path) - 2):
             # Add the distance actions
@@ -172,29 +183,29 @@ class GraphMap:
 
             # Try to simplify the actions by removing actions making a triangle.
             # A triangle means that the actions could be made by a straight line.
-            if (i > 2) and (actions[-2]['action'] == 'turn') and (abs(actions[-2]['value']) < 26):
-                    # Begin the simplication.
-                    # Calculate the new distance
-                    a = actions[-3]['value']
-                    b = actions[-1]['value']
-                    triange_angle = 180 - actions[-2]['value']
-                    new_distance = a**2 + b**2 - 2*a*b*math.cos(math.radians(triange_angle))
-                    actions[-1]['value'] = round(math.sqrt(new_distance))
+            #  if (i > 2) and (actions[-2]['action'] == 'turn') and (abs(actions[-2]['value']) < 15):
+                    #  # Begin the simplication.
+                    #  # Calculate the new distance
+                    #  a = actions[-3]['value']
+                    #  b = actions[-1]['value']
+                    #  triange_angle = 180 - actions[-2]['value']
+                    #  new_distance = a**2 + b**2 - 2*a*b*math.cos(math.radians(triange_angle))
+                    #  actions[-1]['value'] = round(math.sqrt(new_distance))
 
-                    del actions[-3]
+                    #  del actions[-3]
 
-                    # Correct the angle
-                    node_pos = self._graph.node[path[i-3]]['pos']
-                    center_pos = self._graph.node[path[i-2]]['pos']
-                    next_node_pos = self._graph.node[path[i]]['pos']
+                    #  # Correct the angle
+                    #  node_pos = self._graph.node[path[i-3]]['pos']
+                    #  center_pos = self._graph.node[path[i-2]]['pos']
+                    #  next_node_pos = self._graph.node[path[i]]['pos']
 
-                    turn_angle = self.__calculate_turn_angle(node_pos, center_pos, next_node_pos)
-                    if turn_angle != 0:
-                        if actions[-3]['action'] == 'turn':
-                            actions[-3]['value'] += turn_angle
-                            del actions[-2]
-                        else:
-                            actions[-2] = {'action': 'turn', 'value': turn_angle}
+                    #  turn_angle = self.__calculate_turn_angle(node_pos, center_pos, next_node_pos)
+                    #  if turn_angle != 0:
+                        #  if actions[-3]['action'] == 'turn':
+                            #  actions[-3]['value'] += turn_angle
+                            #  del actions[-2]
+                        #  else:
+                            #  actions[-2] = {'action': 'turn', 'value': turn_angle}
 
             # Add the turn actions.
             node_pos = self._graph.node[path[i]]['pos']
@@ -212,9 +223,10 @@ class GraphMap:
         )
         actions.append({'action': 'move', 'value': int(distance)})
 
-        end_robot_angle = self.__get_node_angle(path[-1], path[-2])
+        end_robot_angle = self.__simplify_turn_angle(self.__get_node_angle(path[-2], path[-1]))
+        print(end_robot_angle, target_angle)
         actions.append({'action': 'turn', 'value':
-                        self.__simplify_turn_angle(end_robot_angle - target_angle)})
+                        self.__simplify_turn_angle(end_robot_angle + target_angle)})
 
         return actions
 
@@ -225,7 +237,10 @@ class GraphMap:
         angle1 = self.__get_pos_angle(center, opposite_pos)
         angle2 = self.__get_pos_angle(center, next_node)
 
-        return self.__simplify_turn_angle(angle2 - angle1)
+        angle = self.__simplify_turn_angle(angle2-angle1)
+        print(node, center, opposite_pos, angle, angle1, angle2)
+        return angle
+        #  return self.__simplify_turn_angle(angle2 - angle1)
 
     def __build_graph_from_mesh(self, nodes, triangle_cells):
         """
@@ -252,10 +267,10 @@ class GraphMap:
         self._graph = graph
         # Not useful but could be.
         self.__mark_nodes_as_border()
+        print('Cleaning!')
         self.__clean()
 
-        if self._cache:
-            self.save()
+        self.save()
 
     def __distance_btw_points(self, p1, p2):
         x = (p1[0] - p2[0])**2
@@ -266,7 +281,7 @@ class GraphMap:
         """
         Merges useless nodes according to the distance between 2 nodes.
         """
-        for i in range(300):
+        for i in range(1000):
             for e in self._graph.edges():
                 if e[0] == e[1]:
                     continue
