@@ -19,7 +19,7 @@ class I2C:
 
     # Can handle numbers aswell as lists
     def send(self, data):
-        self.__execute_i2c(self.__send(data))
+        self.__execute_i2c(self.__send, data)
 
     def __send(self, data):
         """Send data to the module it represents"""
@@ -32,7 +32,7 @@ class I2C:
     # read_i2c_block_data can't process more than 32 bytes, so num_bytes should
     # not be greater than 32 !!
     def receive(self, num_bytes=1):
-        self.__execute_i2c(self.__receive(num_bytes))
+        return self.__execute_i2c(self.__receive, num_bytes)
 
     def __receive(self, num_bytes):
         """Receive a specific amount of data from the module it represents"""
@@ -42,17 +42,17 @@ class I2C:
         else:
             return data
 
-    def __execute_i2c(self, callback, *args, **kwargs):
+    def __execute_i2c(self, callback, *args):
         """
         If we send I2C command when the bus is still busy, we get an OSError,
         we should retry a few time before creating a real error.
         """
         for _ in range(10):
             try:
-                return callback(args, kwargs)
-            except IOError as e:
+                return callback(args[0])
+            except OSError as e:
                 logging.info('Failed to send to I2C bus')
-                time.sleep(0.1)
+                time.sleep(0.2)
         raise Exception('There is a problem with the bus I2C.')
 
     def pack8(high, low):
@@ -70,6 +70,14 @@ class I2C:
         # and do a bitwise OR with the 8 bits of low
         # to get a 16 bit value of the form: hhhh hhhh llll llll
         return (high & 0xFF) << 8 | (low & 0xFF)
+
+    def int(val):
+        sign = -1 if val >> 7 == 1 else 1
+        value = val & 0x7F
+        if sign == 1:
+            return value
+        else:
+            return -1 * (128 - value)
 
 
 class TestPack(unittest.TestCase):
