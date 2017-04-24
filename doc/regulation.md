@@ -4,16 +4,16 @@
 
 La régulation va permettre deux choses pour votre prochain robot:
 
-    - Avancer droit/Tourner correctement
-    - Donner des consignes de position/rotation que le robot doit effectué
+- Avancer droit/Tourner correctement
+- Donner des consignes de position/rotation que le robot doit effectué
 
 Le code de la régulation est composé en 2 parties distinctes:
 
-    - La partie Arduino qui effectue la régulation à proprement parlé.
-    - La partie RaspberryPi qui demande l'execution de certaines commandes telles
-        que avance de X cm, tourne de X°, etc mais aussi des demandes d'informations/status
-        de la régulation. Exemple: Est-ce que la régulation est finie? Quels sont
-        la distance parcouru par les odomètres? etc
+- La partie Arduino qui effectue la régulation à proprement parlé.
+- La partie RaspberryPi qui demande l'execution de certaines commandes telles
+    que avance de X cm, tourne de X°, etc mais aussi des demandes d'informations/status
+    de la régulation. Exemple: Est-ce que la régulation est finie? Quels sont
+    la distance parcouru par les odomètres? etc
 
 ## Régulation de position
 
