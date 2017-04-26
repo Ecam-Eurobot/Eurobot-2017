@@ -27,8 +27,8 @@ Le schéma de régulation présenté ci-dessus représente une régulation PI. U
 rapport à un PID qui apporterait plus d'instabilités au système. Dans cette régulation, nous pouvons
 voir 2 différentes parties:
 
-    - la régulation d'avance
-    - la régulation de rotation
+- la régulation d'avance
+- la régulation de rotation
 
 Dès que nous devons avancer, la rotation doit bien sur être égale à 0 et inversement pour la
 rotation. [Le code de régulation](https://github.com/Ecam-Eurobot-2017/main/tree/master/code/arduino/motors)

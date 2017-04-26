@@ -40,7 +40,39 @@ pour les scripts de compilation sont les PKGBUILDs des AUR packages d'ArchLinux 
 
 ### Création du graphe
 
+La librairie que nous avons utilisés pour gérer les graphes s'appelent
+[*Networkx*](https://networkx.readthedocs.io/en/stable/). La librairie est codée en C++ avec un
+wrapper python ce qui donne des performances incomparables par rapport à une solution native. Un
+avantage également est l'intégration de [Matplotlib](http://matplotlib.org/) pour afficher les
+graphes facilement mais également la suite de fonctions avancées sur la manipulation de graphe
+(Dijkstra, ...).
+
+
+Pour créer notre graphe, nous utilisons les positions de chaque sommet de notre mesh ainsi que les
+connections entre chaque sommets pour avoir les arêtes. Ensuite, une simplification du graphe est
+effectuée. Celui-ci est faite en mergeant les sommets les plus proches les 1 des autres. Cette
+simplification permettra d'avoir moins de nodes en mémoire et limiter la puissance requise.
+
+Ensuite, grâce à la fonction intégrée dans Networkx, on cherche le chemin. Finalement, on convertit
+la liste de sommets en instructions comprehensible pour notre API moteurs.
+
+## Mot final
+
+Par manque de temps, nous n'avons pas eu le temps de finir le pathfinding. Le code n'est donc pas
+fonctionnel ni terminé. L'approche prise pour le pathfinding n'est pas non plus optimum parce que le
+robot aura tendance à longer les obstacles. Le problème également de cette approche est
+l'inefficacité du chemin puisque le robot aura tendance à faire des petites distances puis tourner,
+etc... Le temps étant très limité, cette approche meme fonctionnel n'aurait pas été viable pour le
+concour Eurobot.
+
+En résumé, pour implémenter un pathfinding correct, il faut absolument avoir une régulation en
+vitesse correcte. Celle-ci permettra de palier au fait que le graphe est une suite de petites
+distances et de tournants. Une autre solution est d'implémenter un *potential field*.
+
 ## Autres solutions
 
-- *Potential field* pourrait être très bon système de pathfinding si une régulation en vitesse était
-  implémenter.
+*Potential field* pourrait être très bon système de pathfinding si une régulation en vitesse était
+implémenter. Celui-ci représente le terrain comme un potentiel où l'arrivée est le potentiel le
+plus bas et le départ le potentiel le plus haut. On peut donc faire descendre le robot *par
+gravité* vers le potentiel le plus bas. Les obstacles peuvent être représenté par un potentiel très
+haut ce qui va repousser le robot vers les potentiels plus bas.
