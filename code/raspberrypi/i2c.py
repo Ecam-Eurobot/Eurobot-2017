@@ -72,6 +72,11 @@ class I2C:
         return (high & 0xFF) << 8 | (low & 0xFF)
 
     def int(val):
+        """
+        Convert a signed int bytes representation into a Python int value.
+        The representation is the One's representation
+        (https://en.wikipedia.org/wiki/Ones%27_complement).
+        """
         sign = -1 if val >> 7 == 1 else 1
         value = val & 0x7F
         if sign == 1:
