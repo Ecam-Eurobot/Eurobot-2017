@@ -51,6 +51,11 @@ Regulation *regulation = 0;
 
 int motor_speed = 0;
 
+// Distance already done during the regulation.
+// Could be useful if we need the position when we
+// encounter an obstacle.
+int distance_already_done[] = { 0, 0 };
+
 void setup() {
     Serial.begin(9600);
 
@@ -122,6 +127,7 @@ void execute_action() {
             if (motor_speed) {
                 regulation->set_max_speed(motor_speed);
             }
+            reset_distance_already_done();
             break;
 
         case TurnLeft:
@@ -131,6 +137,7 @@ void execute_action() {
             if (motor_speed) {
                 regulation->set_max_speed(motor_speed);
             }
+            reset_distance_already_done();
             break;
     }
 
@@ -179,6 +186,12 @@ void send_i2c_data() {
         {
             byte buf[2]= { (byte) motor_left.get_encoder_distance(),
                 (byte) motor_right.get_encoder_distance() };
+
+            for (int i = 0; i < 2; i++) {
+                buf[i] = buf[i] - distance_already_done[i];
+                distance_already_done[i] = distance_already_done[i] + buf[i];
+            }
+
             Wire.write(buf, 2);
             break;
         }
@@ -207,4 +220,10 @@ void encoder_pulse_right() {
 void encoder_pulse_left() {
     int direction = digitalRead(DIRECTION_LEFT_PIN);
     motor_left.count_encoder_pulse((direction == 0) ? 1 : -1);
+}
+
+void reset_distance_already_done() {
+    for (int i = 0; i < 2; i++) {
+        distance_already_done[i] = 0;
+    }
 }

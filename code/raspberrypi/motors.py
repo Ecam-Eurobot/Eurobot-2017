@@ -1,3 +1,5 @@
+import time
+
 from enum import IntEnum
 from i2c import I2C
 
@@ -12,10 +14,12 @@ class Command(IntEnum):
     DistanceTravelled = 7
     IsDone = 8
     IsStopped = 9
-    Resume = 10
+    Restart = 10
 
 
 class Motors(I2C):
+    ANGLE_CORRECTION = 107.5 / 360
+
     def __init__(self, address):
         super(Motors, self).__init__(address)
 
@@ -32,6 +36,7 @@ class Motors(I2C):
                     self.turn_right(val)
                 else:
                     self.turn_left(abs(val))
+
 
             # Wait before action is done.
             while not self.is_done(done_callback):
@@ -61,7 +66,7 @@ class Motors(I2C):
     def stop(self):
         self.send(Command.Stop)
 
-    def distance_travelled(self):
+    def get_distance_travelled(self):
         self.send(Command.DistanceTravelled)
         r = self.receive(2)
         return {
@@ -69,13 +74,16 @@ class Motors(I2C):
             "right": I2C.int(r[1])
         }
 
-    def is_done(self):
+    def is_done(self, callback=None):
         self.send(Command.IsDone)
-        return self.receive()
+        is_done = self.receive()
+        if is_done and callback is not None:
+            callback(self.get_distance_travelled())
+        return is_done
 
     def is_stopped(self):
         self.send(Command.IsStopped)
         return self.receive()
 
-    def resume(self):
-        self.send(Command.Resume)
+    def restart(self):
+        self.send(Command.Restart)
