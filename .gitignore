@@ -6,3 +6,6 @@ doc.fls
 doc.log
 doc.out
 .DS_Store
+
+__pychache__
+.pyc
