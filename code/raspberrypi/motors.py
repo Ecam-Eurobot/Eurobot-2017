@@ -11,7 +11,7 @@ class Command(IntEnum):
     TurnRight = 4
     SetSpeed = 5
     Stop = 6
-    GetDistanceDone = 7
+    DistanceTravelled = 7
     IsDone = 8
     IsStopped = 9
     Restart = 10
@@ -25,17 +25,18 @@ class Motors(I2C):
 
     def move_with_instructions(self, path, move_callback, done_callback):
         for action in path:
-            val = action['value']
+            val = int(action['value'])
             if action['action'] == 'move':
                 if val > 0:
                     self.forward(val)
                 else:
-                    self.backward(val)
+                    self.backward(abs(val))
             elif action['action'] == 'turn':
                 if val > 0:
                     self.turn_right(val)
                 else:
-                    self.turn_left(val)
+                    self.turn_left(abs(val))
+
 
             # Wait before action is done.
             while not self.is_done(done_callback):
@@ -45,6 +46,7 @@ class Motors(I2C):
                 time.sleep(0.1)
 
         done_callback(self.get_distance_travelled())
+        return 'ok'
 
     def forward(self, distance):
         self.send([Command.Forward, distance])
@@ -68,8 +70,8 @@ class Motors(I2C):
         self.send(Command.DistanceTravelled)
         r = self.receive(2)
         return {
-            "left": r[0],
-            "right": r[1]
+            "left": I2C.int(r[0]),
+            "right": I2C.int(r[1])
         }
 
     def is_done(self, callback=None):

@@ -8,6 +8,7 @@ class Motor {
         Motor(int pwm_pin, int dir_pin);
         void setup();
         void stop();
+        void reset();
         void move_forward(int speed);
         void move_backward(int speed);
         int get_speed() const;

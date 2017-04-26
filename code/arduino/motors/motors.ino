@@ -32,16 +32,16 @@ enum Commands {
 
 // Encoder wheel pins
 // IMP_ENCODER_{LEFT,RIGHT}_PIN should be interrupt pins.
-const int IMP_ENCODER_LEFT_PIN = 3;
-const int IMP_ENCODER_RIGHT_PIN = 2;
-const int DIRECTION_LEFT_PIN = 5;
-const int DIRECTION_RIGHT_PIN = 4;
+const int IMP_ENCODER_LEFT_PIN = 2;
+const int IMP_ENCODER_RIGHT_PIN = 3;
+const int DIRECTION_LEFT_PIN = 4;
+const int DIRECTION_RIGHT_PIN = 5;
 
 // Motor pins.
-const int PWM_MOTOR_LEFT = 10;
-const int PWM_MOTOR_RIGHT = 11;
-const int DIR_MOTOR_LEFT = 52;
-const int DIR_MOTOR_RIGHT = 53;
+const int PWM_MOTOR_LEFT = 9;
+const int PWM_MOTOR_RIGHT = 10;
+const int DIR_MOTOR_LEFT = 12;
+const int DIR_MOTOR_RIGHT = 13;
 
 
 Motor motor_left(PWM_MOTOR_LEFT, DIR_MOTOR_LEFT);
@@ -73,8 +73,7 @@ void setup() {
     motor_right.setup();
 
     // Increase the PWM clock speed.
-    TCCR1B = TCCR1B & B11111000 | B00000001;
-    TCCR2B = TCCR2B & B11111000 | B00000001;
+    TCCR1B = TCCR1B & 0b11111000 | 0x01;
 }
 
 

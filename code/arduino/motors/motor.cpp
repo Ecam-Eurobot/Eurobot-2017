@@ -12,6 +12,11 @@ void Motor::stop() {
     analogWrite(pwm_pin, 0);
 }
 
+void Motor::reset() {
+    encoder_counter = 0;
+    speed = 0;
+}
+
 void Motor::move_forward(int speed) {
     digitalWrite(dir_pin, LOW);
     analogWrite(pwm_pin, speed);
