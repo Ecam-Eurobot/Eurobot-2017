@@ -38,8 +38,6 @@ void Regulation::tune() {
     float lead_regul = get_lead_regulation(lead_error);
     float rot_regul = get_rotation_regulation(rot_error);
 
-    // Restrict the speed compared to the last speed to avoid big jumps
-    // of speed.
     float cmd_left = lead_regul + rot_regul;
     float cmd_right = lead_regul - rot_regul;
 
@@ -97,14 +95,14 @@ bool Regulation::is_finished(float lead_err, float rot_err) {
 
 // Increase the sum of errors with the current error.
 // The sum of errors will be used for the integral of the PID.
-// We don't modify the sum of errors if the error is small
-// because it means we are nearly to the setpoint.
-// Because the integral parts of PID can give a big overshoot,
-// we limit the overshoot when we are near the setpoint.
+// We don't modify the sum of errors if the error is too large
+// because we will have a too big sum of errors leading to a
+// big overshoot. The integral is required to get near to the
+// null error (i.e. limiting the static error).
 void Regulation::update_sum_errors(float lead, float rot) {
     // Reset the integral value if we are in the opposite regulation
     // because otherwise, we will need to decrease the sum error to the
-    // opposite before beginning to regulate correctly again.
+    // opposite before beginning to move correctly again.
     if ((lead >= 0) != (sum_errors_lead >= 0)) {
         sum_errors_lead = 0;
     }
@@ -142,7 +140,7 @@ float Regulation::saturate_integral_regulation(float value) {
 }
 
 // Limit the command to avoid demanding too much powers to the motors and
-// soften the startup of the robot.
+// soften the startup of the robots.
 float Regulation::set_command_limit(Motor *motor, float command) {
     int prev_cmd = motor->get_speed();
 

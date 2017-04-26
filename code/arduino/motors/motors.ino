@@ -3,7 +3,7 @@
 #include "regulation.h"
 
 /*
- * This code has been created for an Arduino Mega.
+ * This code has been created for an Arduino Uno.
  * The left and right are defined from the back of
  * the robot.
  */
@@ -72,7 +72,7 @@ void setup() {
     motor_left.setup();
     motor_right.setup();
 
-    // Increase the PWM clock speed.
+    // Increase the PWM clock speed to avoid motors noises.
     TCCR1B = TCCR1B & 0b11111000 | 0x01;
 }
 
@@ -88,7 +88,6 @@ void loop() {
 // Receive data from I2C communication
 void receive_i2c_data(int byteCount) {
     while (Wire.available()) {
-
         byte dataReceived = Wire.read();
         if (dataReceived == 0) continue;
 
