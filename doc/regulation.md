@@ -1,5 +1,9 @@
 # La régulation
 
+> Pour comprendre la régulation plus en profondeurs, je vous invite à lire le
+[code](https://github.com/Ecam-Eurobot-2017/main/tree/master/code/arduino/motors) après avoir lu
+ce petit tutoriel. Celui-ci devrait être plutot clair.
+
 ## Introduction
 
 La régulation va permettre deux choses pour votre prochain robot:
