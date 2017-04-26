@@ -52,9 +52,7 @@ int measure(byte trig, byte echo) {
     return distance;
 }
 
-
 // I2C
-
 void receiveData(int byteCount){
     while(Wire.available()){
         // The way I2C works is that we write and read from specific registers
@@ -93,18 +91,13 @@ void sendData(){
                 Wire.write(0);
                 return;
             }
-
-            split[0] = measures[sensor] & 0xFF;
-            split[1] = measures[sensor] >> 8;
-            Wire.write(split, 2);
+            Wire.write(measures[sensor]);
             break;
 
         // Return measurements of all sensors
         case 2:
             for(byte i = 0; i < N_SENSORS; i++) {
-                split[0] = measures[sensor] & 0xFF;
-                split[1] = measures[sensor] >> 8;
-                Wire.write(split, 2);
+                Wire.write(measures[i]);
             }
             break;
 
