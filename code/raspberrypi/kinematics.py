@@ -9,6 +9,7 @@ class Adress(IntEnum) :
     SERVO_CLAMP = 0
     SERVO_DYNAMIXEL = 1
     SERVO_PUSH = 2
+    SERVO_FUNNY = 3
 
 
 class Kinematics(I2C) :
@@ -29,26 +30,37 @@ class Kinematics(I2C) :
         """Constructor takes the adress of the I2C module"""
         super(Kinematics, self).__init__(address)
 
-    def up_clamp(self) :
+    def up_clamp(self):
         cmd = I2C.pack8(Adress.SERVO_DYNAMIXEL, Command.MOVE_UP)
         self.send(cmd)
 
-    def down_clamp(self) :
+    def down_clamp(self):
         cmd = I2C.pack8(Adress.SERVO_DYNAMIXEL, Command.MOVE_DOWN)
         self.send(cmd)
 
-    def close_clamp(self) :
+    def middle_clamp(self):
+        self.send(I2C.pack8(Adress.SERVO_DYNAMIXEL, 2))
+
+    def close_clamp(self):
         cmd = I2C.pack8(Adress.SERVO_CLAMP, Command.MOVE_UP)
         self.send(cmd)
 
-    def open_clamp(self) :
+    def open_clamp(self):
         cmd = I2C.pack8(Adress.SERVO_CLAMP, Command.MOVE_DOWN)
         self.send(cmd)
 
-    def push_out(self) :
+    def push_out(self):
         cmd = I2C.pack8(Adress.SERVO_PUSH, Command.MOVE_UP)
         self.send(cmd)
 
-    def push_back(self) :
+    def push_back(self):
         cmd = I2C.pack8(Adress.SERVO_PUSH, Command.MOVE_DOWN)
+        self.send(cmd)
+
+    def launch_funny(self):
+        cmd = I2C.pack8(Adress.SERVO_FUNNY, Command.MOVE_UP)
+        self.send(cmd)
+
+    def reset_funny(self):
+        cmd = I2C.pack8(Adress.SERVO_FUNNY, Command.MOVE_DOWN)
         self.send(cmd)
