@@ -15,6 +15,10 @@ Le navigation mesh consiste en deux étapes:
   robot
 - La convertion du mesh en un graphe pour appliquer l'algorithme de recherche (dijkstra, A\*, ...)
 
+Pour connaitre les positions possibles pour le robot, nous ramenons le robot à un point (à son
+centre) et nous augmentons les obstacles du rayon maximal du robot. Cette approche nous permet
+de réduire considérablement le nombre de calcul requis pour trouver un chemin correct.
+
 ### Creation du mesh
 
 Notre programme principal étant programmé en Python, nous devions trouver des librairies
@@ -37,6 +41,11 @@ Pour des raisons évidente, nous sommes partis sur la solution Dolfin+Mshr. Pour
 developpement, je conseille d'activer VTK par defaut pour visualiser le mesh créer. Une bonne source
 pour les scripts de compilation sont les PKGBUILDs des AUR packages d'ArchLinux genre
 [celui-ci](https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=python-dolfin-git).
+
+Pour créer le mesh, nous avons utilisés l'API de Mshr pour ajouter les obstacles agrandi du rayon du
+robot, dans un mesh de 200x300cm (qui représente la taille du terrain). Mshr ne supporte pas
+énormement de formes géométriques. Nous avions besoin d'un trapèze, nous avons créer une fonction
+qui utilisait plusieurs rectangles empilés (pas la meilleur manière mais ca marche correctement).
 
 ![Mesh généré par Dolfin](assets/mesh.png)
 
@@ -67,11 +76,28 @@ fonctionnel ni terminé. L'approche prise pour le pathfinding n'est pas non plus
 robot aura tendance à longer les obstacles. Le problème également de cette approche est
 l'inefficacité du chemin puisque le robot aura tendance à faire des petites distances puis tourner,
 etc... Le temps étant très limité, cette approche meme fonctionnel n'aurait pas été viable pour le
-concour Eurobot.
+concours Eurobot.
 
-En résumé, pour implémenter un pathfinding correct, il faut absolument avoir une régulation en
-vitesse correcte. Celle-ci permettra de palier au fait que le graphe est une suite de petites
-distances et de tournants. Une autre solution est d'implémenter un *potential field*.
+En résumé, pour implémenter un pathfinding correct, il faut absolument avoir:
+
+- une régulation en vitesse correcte. Celle-ci permettra de palier au fait que le graphe est une
+  suite de petites distances et de tournants.
+- lors de la création du graphe, prendre le milieu des arrêtes comme sommets au lieu des sommets
+  généré par le mesh (trop proche des obstacles).
+- trouver un algorithme de lissage de chemin en jouant par exemple sur les angles. Exemple:
+    - si on tourne très peu, on évite peut etre pas d'obstacles.
+    - flaguer les nodes qui sont près des obstacles (déjà fait plus ou moins) et n'effectuer que
+          l'optimisation que lorsque l'on ne longe pas les obstacles.
+    - si on tourne dans un sens et puis directement dans l'autre sens, c'est surement un "tournant
+          poubelle" généré par le graph.
+
+Pour optimiser le mesh, on pourrait aussi voir à hardcoder le graphe avec quelques points choisit à
+la volée ainsi que quelques autres points qui serait en backup lors d'une rencontre avec un
+obstacle.
+
+En espérant que mes recherches vous serons utiles et désolé pour le code très moche du pathfinding.
+
+@charlesvdv
 
 ## Autres solutions
 
