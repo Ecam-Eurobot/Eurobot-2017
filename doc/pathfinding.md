@@ -38,6 +38,8 @@ developpement, je conseille d'activer VTK par defaut pour visualiser le mesh cr�
 pour les scripts de compilation sont les PKGBUILDs des AUR packages d'ArchLinux genre
 [celui-ci](https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=python-dolfin-git).
 
+![Mesh généré par Dolfin](assets/mesh.png)
+
 ### Création du graphe
 
 La librairie que nous avons utilisés pour gérer les graphes s'appelent
@@ -55,6 +57,8 @@ simplification permettra d'avoir moins de nodes en mémoire et limiter la puissa
 
 Ensuite, grâce à la fonction intégrée dans Networkx, on cherche le chemin. Finalement, on convertit
 la liste de sommets en instructions comprehensible pour notre API moteurs.
+
+![Graphe généré par Networkx](assets/graph.png)
 
 ## Mot final
 
