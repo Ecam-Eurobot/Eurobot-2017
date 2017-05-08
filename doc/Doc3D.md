@@ -1,5 +1,5 @@
 
-#Elaboration des fonctionnalités.
+# Elaboration des fonctionnalités.
 
 ------
 
@@ -50,16 +50,13 @@ La funny action consistait simplement au lancement d’un projectile devant vagu
 	* *On pourrait visser pour assurer la cohésion et la résistance à la traction.*
 
 	* Problèmes de déclenchement, parfois malgré l’action du servomoteur, il ne  parvenait pas à dégoupiller le crochet, ne lançant donc pas la funny action.
-	* *On pourrait mieux étalonner les longueurs, couper le crochet faisant la
-	  liaison.*
+	* *On pourrait mieux étalonner les longueurs, couper le crochet faisant la liaison.*
 
 	* Le câble de déclenchement avait tendance à se dérober au crochet.
 	* *Simplement mettre de la colle pour éviter de faire des fausses manœuvres.*
 
-	* La mise en place du crochet lors du chargement était laborieux et devait se
-	  faire avec une pince à épiler.
-	* *On pourrait simplement prévoir une ouverture plus grande tout en faisant  	
-	  attention à ne pas entraver  le bon fonctionnement du *déclenchement.*
+	* La mise en place du crochet lors du chargement était laborieux et devait se faire avec une pince à épiler.
+	* *On pourrait simplement prévoir une ouverture plus grande tout en faisant attention à ne pas entraver  le bon fonctionnement du *déclenchement.*
 
 
 ## Ramassage de plots
@@ -90,7 +87,7 @@ La constitution d’une telle pince relève plusieurs défis. La constitution de
 	* S’assurer des contraintes mécaniques que va subi la pince.
 	* Les espaces devront être bien calculés pour aisément prendre le plot.
 
-###Deuxième mécanisme : constitution du réservoir, notre robot devait être capable de maintenir jusqu’à 4 plots :
+### Deuxième mécanisme : constitution du réservoir, notre robot devait être capable de maintenir jusqu’à 4 plots :
 
 Nous avons opté pour l’option la plus simple, il sera constitué d’une simple pente allant de la pince en haute à l’endroit de décharge.
 Notre principal défi dans cette fonctionnalité est de bien réceptionner les plots et de bien les orienter jusqu’à l’endroit de décharge.
@@ -107,7 +104,7 @@ Nous avons opté pour un bélier venant pousser le plot le long de rails afin de
 La première étape est de dessiner les pièces en croquis et de s’assurer que toute l’équipe va dans le même sens.
 
 *Par exemple pour la pince:*
-![sketch arm ](imagesDoc/img1.PNG)
+![sketch arm ](assets/img1.PNG)
 
  **La nécessité de comparer les avis est essentiel, le dessin de pièces 3D et le refactoring de celles-ci est long et fastidieux**
 
@@ -117,7 +114,7 @@ La première étape est de dessiner les pièces en croquis et de s’assurer que
 
 Cette fois ci on doit déterminer les pièces qu’on devra imprimer en 3D, il ne faut pas en abuser et n’utiliser qu’exclusivement ce moyen, comme dit précédemment l’élaboration de celles-ci est longue et l’impression peut l’être d’autant plus.
 
-###Le logiciel:
+### Le logiciel:
 
 Tous les fichier 3D ont étés fait sous __Autocad Inventor__, une autre alternative serait __Solidworks__ qui est gratuit à des fins éducatives (voir les conditions sur leur site).
 
@@ -127,11 +124,11 @@ La documentation officielle fournit beaucoup de ressources pour démarrer ainsi 
 [Tutorial’s playlist](https://www.youtube.com/watch?v=Scc0uEEau3w).
 
 
-###Pour le bundle de récupération des plots:
+### Pour le bundle de récupération des plots:
 
 __L’ensemble des pièces de la pince:__
 
-![sketch arm ](imagesDoc/rapport1.JPG)
+![sketch arm ](assets/rapport1.JPG)
 
 Cette pièce à donc été conçue de façon a s’adapter aux mieux au contraintes exposés plus tot et a par la suite été imprimé en 3D .
 
@@ -148,8 +145,8 @@ __Le dernier système était la remise en place.__
 * La base est constitué d’un socle avec deux rails ou vont naturellement tomber les plots.
 * Dans ce support nous avons placé une saignée pour pouvoir faire coulisser la tête du bélier, derrière la tête est accroché un système d’axe permettant à un servomoteur de pousser la tête avec un plot devant tout en économisant un maximum de place.
 
-![sketch arm ](imagesDoc/rapport2.JPG)
-![sketch arm ](imagesDoc/rapport3.JPG)
+![sketch arm ](assets/rapport2.JPG)
+![sketch arm ](assets/rapport3.JPG)
 
 
 *Une fois tous les éléments en place il ne manque plus que l’impression de ces dernières.*
@@ -166,7 +163,7 @@ Il faut toujours penser a remplir un minium la pièces, un "shell", vide donc su
 Pour certaines pièces ne nécessitant pas d’être adapté parfaitement a notre usage, qui doivent alors être dessinés par nos soins, il existe une pléiades de sites fournissant des modèles 3D gratuits.
 C’est avec un modèle fournit qu’on a imprimé la fusée de la funny action.
 
-![sketch arm ](imagesDoc/rapport4.JPG)
+![sketch arm ](assets/rapport4.JPG)
 
 ### L’ECAM possède deux imprimantes 3D:
 
@@ -183,7 +180,7 @@ __utilisatio:n__ elle est idéale pour des pièces en test ou ne nécessitant pa
 
 Son logiciel "UP" propose une interface simple pour l’impressions mais manquant de réglages.
 
-![sketch arm ](imagesDoc/img2.PNG)
+![sketch arm ](assets/img2.PNG)
 
 
 * L’interface Nous propose d’importer des fichiers au format .STL.
@@ -204,7 +201,7 @@ __Itilisation:__ elle est idéale pour des pièces volumineuse ou des petites pi
 
 Le logiciel associé est *"CURA"*, à la base propriétaire, il est maintenant open source et on peut l’utiliser sur des imprimantes "DIY" tel que la gamme des PRUSA.
 
-![sketch arm ](imagesDoc/img3.PNG)
+![sketch arm ](assets/img3.PNG)
 
 L’interface est facile et les réglages sont optimisés en fonction de l’imprimante utilisée.
 * On peut choisir son imprimante parmi une liste déroulante.
