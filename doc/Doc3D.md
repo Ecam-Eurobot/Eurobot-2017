@@ -23,40 +23,42 @@ La funny action consistait simplement au lancement d’un projectile devant vagu
 
 ### Voici les contraintes:
 
-	* Le robot doit lancer l’engin spatial à la verticale, après la fin du temps réglementaire dans un délai de 5 secondes.
-	*  La masse de l’engin spatial ne devra pas excéder 50 g.  
-	*  Durant le match, l’engin spatial ne doit pas dépasser des 350mm du robot.  
-	* L’engin spatial devra, visiblement et de n’importe quel point de vue, se séparer du robot qui l’a lancé (environ 10 cm au-dessus du point le plus haut du robot excepté le mat) et ne devra pas excéder 2 mètres de hauteur.
-	* Une seule action de lancer sera comptabilisée par équipe.
-	* Réussir cette action nous octroiera 20 points. 
+* Le robot doit lancer l’engin spatial à la verticale, après la fin du temps réglementaire dans un délai de 5 secondes.
+*  La masse de l’engin spatial ne devra pas excéder 50 g.  
+*  Durant le match, l’engin spatial ne doit pas dépasser des 350mm du robot.  
+* L’engin spatial devra, visiblement et de n’importe quel point de vue, se séparer du robot qui l’a lancé (environ 10 cm au-dessus du point le plus haut du robot excepté le mat) et ne devra pas excéder 2 mètres de hauteur.
+* Une seule action de lancer sera comptabilisée par équipe.
+* Réussir cette action nous octroiera 20 points. 
+
 ### Le mécanisme de lancement se compose de plusieurs éléments :
 
-	* Un tube, servant à abriter la fusée.
-	* La fusée, qui est le projectile qui sera lancé et est le seul élément imprimé en 3D de ce bundle.
-	* Un plateau accroché par des ressorts qui va fournir la poussée nécessaire à la fusée pour qu’elle décolle.
-	* En position chargé, le plateau est attaché au fond par le biais d’un crochet qui sert de goupille.
-	*	Un servomoteur servant à tirer ce crochet.
-	* Un fente a été creusé afin de pouvoir inclure facilement le module qui est collé un étage en dessous.
+* Un tube, servant à abriter la fusée.
+* La fusée, qui est le projectile qui sera lancé et est le seul élément imprimé en 3D de ce bundle.
+* Un plateau accroché par des ressorts qui va fournir la poussée nécessaire à la fusée pour qu’elle décolle.
+* En position chargé, le plateau est attaché au fond par le biais d’un crochet qui sert de goupille.
+*	Un servomoteur servant à tirer ce crochet.
+* Un fente a été creusé afin de pouvoir inclure facilement le module qui est collé un étage en dessous.
 
 ### Cinématique :
 
 *toute la partie programmation est expliqué dans la partie code.*
 
-	* La première étape est de maintenir le plateau au fond avec les ressorts tendus. On doit, pour ce faire venir insérer le crochet dans les espaces prévus afin de retenir le plateau. Une fois chargé, on peut mettre la fusée. Une fois l’ordre donné, le servomoteur est actionné, tirant le crochet et désolidarisant le plateau de sa fixation, celui ci est violemment propulsé vers le haut , transférant l’énergie dans la fusée qui peut s’élever par effet d’inertie.
+* La première étape est de maintenir le plateau au fond avec les ressorts tendus. On doit, pour ce faire venir insérer le crochet dans les espaces prévus afin de retenir le plateau. Une fois chargé, on peut mettre la fusée. Une fois l’ordre donné, le servomoteur est actionné, tirant le crochet et désolidarisant le plateau de sa fixation, celui ci est violemment propulsé vers le haut , transférant l’énergie dans la fusée qui peut s’élever par effet d’inertie.
 
 ### Problèmes rencontrés :
 
-	* Ce système est simple est efficace mais il comporte certains problèmes qui seraient bon de notifier. les deux fixations étaient collés aux parois du fond et  du plateau, par de l’autocollant double face et de la colle, avec la tension induite par les ressorts en mode tendu, avaient tendance à ce décoller.
-	* *On pourrait visser pour assurer la cohésion et la résistance à la traction.*
+* Ce système est simple est efficace mais il comporte certains problèmes qui seraient bon de notifier. les deux fixations étaient collés aux parois du fond et  du plateau, par de l’autocollant double face et de la colle, avec la tension induite par les ressorts en mode tendu, avaient tendance à ce décoller.
 
-	* Problèmes de déclenchement, parfois malgré l’action du servomoteur, il ne  parvenait pas à dégoupiller le crochet, ne lançant donc pas la funny action.
-	* *On pourrait mieux étalonner les longueurs, couper le crochet faisant la liaison.*
+* *On pourrait visser pour assurer la cohésion et la résistance à la traction.*
 
-	* Le câble de déclenchement avait tendance à se dérober au crochet.
-	* *Simplement mettre de la colle pour éviter de faire des fausses manœuvres.*
+* Problèmes de déclenchement, parfois malgré l’action du servomoteur, il ne  parvenait pas à dégoupiller le crochet, ne lançant donc pas la funny action.
+* *On pourrait mieux étalonner les longueurs, couper le crochet faisant la liaison.*
 
-	* La mise en place du crochet lors du chargement était laborieux et devait se faire avec une pince à épiler.
-	* *On pourrait simplement prévoir une ouverture plus grande tout en faisant attention à ne pas entraver  le bon fonctionnement du *déclenchement.*
+* Le câble de déclenchement avait tendance à se dérober au crochet.
+* *Simplement mettre de la colle pour éviter de faire des fausses manœuvres.*
+
+* La mise en place du crochet lors du chargement était laborieux et devait se faire avec une pince à épiler.
+* *On pourrait simplement prévoir une ouverture plus grande tout en faisant attention à ne pas entraver  le bon fonctionnement du *déclenchement.*
 
 
 ## Ramassage de plots
@@ -76,16 +78,16 @@ Les avantages étaient la simplicité de la mise en œuvre, on a simplement à f
 
 *Mais cette solution présentait deux défauts majeurs:*
 
-	* La difficulté de stockage: il faut attirer les plots a la base de la structure et les faire basculer dans une enceinte prévue à cet effet, ensuite, pour optimiser le stockage, il aurait fallu faire monter ces plots. On avait donc un nouveau défi technique mêlé à un facteur aléatoire assez grand lors de la bascule.
+* La difficulté de stockage: il faut attirer les plots a la base de la structure et les faire basculer dans une enceinte prévue à cet effet, ensuite, pour optimiser le stockage, il aurait fallu faire monter ces plots. On avait donc un nouveau défi technique mêlé à un facteur aléatoire assez grand lors de la bascule.
 
-	* La disposition des plots dans les tubes "fusées" ne permettait pas au bras de récolter les plots, par manque de prise.
+* La disposition des plots dans les tubes "fusées" ne permettait pas au bras de récolter les plots, par manque de prise.
 
 La deuxième piste consistait en un bras préhensile qui allait nous permettre de saisir les plots de façon efficace et de les lève, pour les introduire dans l’enceinte.
 
 La constitution d’une telle pince relève plusieurs défis. La constitution devait être telle que le plot serait naturellement dirigé vers le stockage à l’ouverture.
 
-	* S’assurer des contraintes mécaniques que va subi la pince.
-	* Les espaces devront être bien calculés pour aisément prendre le plot.
+* S’assurer des contraintes mécaniques que va subi la pince.
+* Les espaces devront être bien calculés pour aisément prendre le plot.
 
 ### Deuxième mécanisme : constitution du réservoir, notre robot devait être capable de maintenir jusqu’à 4 plots :
 
